@@ -132,13 +132,6 @@ public class RegistrarDoctorPaso2Activity extends AppCompatActivity {
         }
         cursor.close();
 
-        // Si la lista está vacía (primera vez), podemos añadir algunas por defecto
-        if(listaEspecialidades.isEmpty()) {
-            listaEspecialidades.add("Medicina General");
-            listaEspecialidades.add("Pediatría");
-            listaEspecialidades.add("Cardiología");
-        }
-
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this, android.R.layout.simple_dropdown_item_1line, listaEspecialidades
         );

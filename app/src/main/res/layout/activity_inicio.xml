@@ -95,7 +95,10 @@
                 android:layout_margin="8dp"
                 app:cardBackgroundColor="@color/blanco"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
+                app:cardElevation="4dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -113,19 +116,23 @@
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:layout_marginStart="16dp">
+
                         <TextView
+                            android:id="@+id/tvCitaPendienteInfo"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Lun, 20 Oct - 10:30 AM"
                             android:textColor="@color/texto_principal"
                             android:textAppearance="?attr/textAppearanceTitleMedium"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold"
+                            tools:text="Lun, 20 Oct - 10:30 AM"/>
+
                         <TextView
+                            android:id="@+id/tvCitaPendienteDoctor"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Dr. Alberto García (Cardiología)"
                             android:textColor="@color/texto_secundario"
-                            android:textAppearance="?attr/textAppearanceBodyMedium"/>
+                            android:textAppearance="?attr/textAppearanceBodyMedium"
+                            tools:text="Dr. Alberto García (Cardiología)"/>
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -311,7 +318,7 @@
                     android:layout_margin="8dp"
                     app:cardBackgroundColor="@color/azul_claro_fondo"
                     app:cardCornerRadius="16dp"
-                    app:cardElevation="4dp">
+                    app:cardElevation="0dp">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="140dp"
@@ -338,4 +345,5 @@
             </GridLayout>
         </LinearLayout>
     </ScrollView>
+
 </LinearLayout>

@@ -35,6 +35,14 @@ public class BaseDeDatos extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREAR_TABLA_USUARIOS);
         db.execSQL(CREAR_TABLA_ESPECIALIDADES);
+        String[] especialidades = {"Medicina General", "Pediatría", "Cardiología", "Dermatología", "Ginecología", "Neurología", "Psicología"};
+        ContentValues cv = new ContentValues();
+        for (String esp : especialidades) {
+            cv.put("nombre", esp);
+            cv.put("descripcion", "Especialidad de " + esp);
+            db.insert("especialidades", null, cv);
+            cv.clear();
+        }
         db.execSQL(CREAR_TABLA_PACIENTES);
         db.execSQL(CREAR_TABLA_DOCTORES);
         db.execSQL(CREAR_TABLA_CITAS);
@@ -293,5 +301,60 @@ public class BaseDeDatos extends SQLiteOpenHelper {
     public Cursor getDocumentosDeCita(int idCita) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM documentos WHERE id_cita = ?", new String[]{String.valueOf(idCita)});
+    }
+
+    public Cursor getDoctoresPorEspecialidad(int idEspecialidad){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "select id_usuario, nombre_completo FROM doctores where id_especialidad = ?";
+        return db.rawQuery(query, new String[]{String.valueOf(idEspecialidad)});
+    }
+
+    public Cursor getProximaCita(int idPaciente){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String hoy = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        String query = "SELECT c.fecha, c.hora, d.nombre_completo " +
+                "FROM citas c " +
+                "JOIN doctores d ON c.id_doctor = d.id_usuario " +
+                "WHERE c.id_paciente = ? AND c.estado = 'agendada' AND c.fecha >= ? " +
+                "ORDER BY c.fecha ASC, c.hora ASC LIMIT 1";
+        return db.rawQuery(query, new String[]{String.valueOf(idPaciente), hoy});
+    }
+    public Cursor getProximaCitaDoctor(int idDoctor){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String hoy = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        String query = "SELECT c.fecha, c.hora, p.nombre, p.apellido " +
+                "FROM citas c " +
+                "JOIN pacientes p ON c.id_paciente = p.id_usuario " +
+                "WHERE c.id_doctor = ? AND c.estado = 'agendada' AND c.fecha >= ? " +
+                "ORDER BY c.fecha ASC, c.hora ASC LIMIT 1";
+        return db.rawQuery(query, new String[]{String.valueOf(idDoctor), hoy});
+    }
+
+    public Cursor getTodasCitasDoctor(int idDoctor){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT c.id, c.fecha, c.hora, c.estado, c.motivo, p.nombre, p.apellido " +
+                "FROM citas c " +
+                "JOIN pacientes p ON c.id_paciente = p.id_usuario " +
+                "WHERE c.id_doctor = ? " +
+                "ORDER BY c.fecha DESC, c.hora DESC";
+        return db.rawQuery(query, new String[]{String.valueOf(idDoctor)});
+    }
+
+    public boolean actualizarEstadoCita(int idCita, String nuevoEstado){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("estado", nuevoEstado);
+        int filasAfectadas = db.update("citas", cv, "id = ?", new String[]{String.valueOf(idCita)});
+        db.close();
+        return filasAfectadas > 0;
+    }
+    public Cursor getTodasCitasPaciente(int idPaciente) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT c.id, c.fecha, c.hora, c.estado, c.motivo, d.nombre_completo " +
+                "FROM citas c " +
+                "JOIN doctores d ON c.id_doctor = d.id_usuario " +
+                "WHERE c.id_paciente = ? " +
+                "ORDER BY c.fecha DESC, c.hora DESC";
+        return db.rawQuery(query, new String[]{String.valueOf(idPaciente)});
     }
 }
