@@ -1,4 +1,4 @@
-package com.example.saludmovil;
+package com.example.saludmovil.ui.paciente;
 
 import android.Manifest;
 import android.app.NotificationChannel;
@@ -22,6 +22,9 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.saludmovil.database.BaseDeDatos;
+import com.example.saludmovil.R;
+import com.example.saludmovil.ui.global.RolesActivity;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 

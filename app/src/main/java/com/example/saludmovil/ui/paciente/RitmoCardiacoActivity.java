@@ -1,4 +1,4 @@
-package com.example.saludmovil;
+package com.example.saludmovil.ui.paciente;
 
 import android.Manifest;
 import android.content.Context;
@@ -30,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.example.saludmovil.R;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 

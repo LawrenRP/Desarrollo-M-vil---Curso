@@ -1,4 +1,4 @@
-package com.example.saludmovil;
+package com.example.saludmovil.ui.doctor;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -15,6 +15,8 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.saludmovil.database.BaseDeDatos;
+import com.example.saludmovil.R;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
 

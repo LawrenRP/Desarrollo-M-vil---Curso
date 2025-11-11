@@ -1,4 +1,4 @@
-package com.example.saludmovil;
+package com.example.saludmovil.ui.paciente;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
@@ -13,6 +13,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.saludmovil.database.BaseDeDatos;
+import com.example.saludmovil.R;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
 

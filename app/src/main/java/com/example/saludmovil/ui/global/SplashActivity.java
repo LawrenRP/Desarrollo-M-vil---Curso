@@ -1,4 +1,4 @@
-package com.example.saludmovil;
+package com.example.saludmovil.ui.global;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,6 +7,9 @@ import android.os.Handler;
 import android.os.Looper;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.saludmovil.R;
+import com.example.saludmovil.ui.paciente.InicioActivity;
 
 public class SplashActivity extends AppCompatActivity {
 

@@ -1,11 +1,10 @@
-package com.example.saludmovil;
+package com.example.saludmovil.ui.doctor;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -17,31 +16,28 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+
+import com.example.saludmovil.R;
+import com.example.saludmovil.utils.Validaciones;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputLayout; // Importamos TextInputLayout
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.json.JSONException;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
-
-public class RegistrarActivity extends AppCompatActivity {
+public class RegistrarDoctorPaso1Activity extends AppCompatActivity {
 
     // Vistas de UI
-    TextInputEditText edDNI, edNombre, edApellido, edFechaNacimiento, edCorreo, edClave, edConfirmarClave;
-    Button btnRegistrar;
-    MaterialButton btnPacienteExistente, btnVerificarDNI;
+    TextInputEditText edNombre, edDNI, edFechaNacimiento, edTelefono, edCorreo, edClave, edConfirmarClave;
+    Button btnSiguiente;
+    MaterialButton btnVerificarDNI;
     MaterialToolbar toolbar;
 
-    // Layouts para poder habilitarlos/deshabilitarlos
-    TextInputLayout layoutNombre, layoutApellido, layoutFecha, layoutCorreo, layoutClave, layoutConfirmar;
+    // Layouts para habilitar/deshabilitar
+    TextInputLayout layoutNombre, layoutFecha, layoutTelefono, layoutCorreo, layoutClave, layoutConfirmar;
 
     private RequestQueue colaPeticiones;
     private boolean hayCambiosSinGuardar = false;
@@ -49,10 +45,9 @@ public class RegistrarActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registrar);
+        setContentView(R.layout.activity_registrar_doctor_paso1);
 
-        vincularVistas(); // Usamos un método para mantener onCreate limpio
-
+        vincularVistas();
         colaPeticiones = Volley.newRequestQueue(this);
 
         setSupportActionBar(toolbar);
@@ -61,67 +56,56 @@ public class RegistrarActivity extends AppCompatActivity {
         }
 
         configurarEstadoInicialFormulario();
-
+        setupClickListeners();
         setupChangeListeners();
         setupBackButton();
-        setupClickListeners();
     }
 
     private void vincularVistas() {
-        toolbar = findViewById(R.id.toolbarRegistro);
-        edDNI = findViewById(R.id.editTextRegDNI);
-        edNombre = findViewById(R.id.editTextRegNombre);
-        edApellido = findViewById(R.id.editTextRegApellido);
-        edFechaNacimiento = findViewById(R.id.editTextRegFechaNacimiento);
-        edCorreo = findViewById(R.id.editTextRegCorreo);
-        edClave = findViewById(R.id.editTextRegClave);
-        edConfirmarClave = findViewById(R.id.editTextRegConfirmarClave);
-        btnRegistrar = findViewById(R.id.buttonRegistrar);
-        btnPacienteExistente = findViewById(R.id.textViewPacienteExistente);
-        btnVerificarDNI = findViewById(R.id.buttonVerificarDNI);
+        toolbar = findViewById(R.id.toolbarRegDoc1);
+        edNombre = findViewById(R.id.editTextRegDocNombre);
+        edDNI = findViewById(R.id.editTextRegDocDNI);
+        edFechaNacimiento = findViewById(R.id.editTextRegDocFechaNacimiento);
+        edTelefono = findViewById(R.id.editTextRegDocTelefono);
+        edCorreo = findViewById(R.id.editTextRegDocCorreo);
+        edClave = findViewById(R.id.editTextRegDocClave);
+        edConfirmarClave = findViewById(R.id.editTextRegDocConfirmarClave);
+        btnSiguiente = findViewById(R.id.buttonRegDocSiguiente);
+        btnVerificarDNI = findViewById(R.id.buttonVerificarDNIDoctor);
 
-        // Vinculamos los Layouts para poder deshabilitarlos
-        layoutNombre = findViewById(R.id.textInputLayoutRegNombre);
-        layoutApellido = findViewById(R.id.textInputLayoutRegApellido);
-        layoutFecha = findViewById(R.id.textInputLayoutRegFecha);
-        layoutCorreo = findViewById(R.id.textInputLayoutRegCorreo);
-        layoutClave = findViewById(R.id.textInputLayoutRegClave);
-        layoutConfirmar = findViewById(R.id.textInputLayoutRegConfirmarClave);
+        // Asegúrate de que los IDs de tus TextInputLayouts coincidan con estos
+        layoutNombre = findViewById(R.id.textInputLayoutRegDocNombre);
+        layoutFecha = findViewById(R.id.textInputLayoutRegDocFecha);
+        layoutTelefono = findViewById(R.id.textInputLayoutRegDocTelefono);
+        layoutCorreo = findViewById(R.id.textInputLayoutRegDocCorreo);
+        layoutClave = findViewById(R.id.textInputLayoutRegDocClave);
+        layoutConfirmar = findViewById(R.id.textInputLayoutRegDocConfirmarClave);
     }
 
     private void configurarEstadoInicialFormulario() {
-        // Deshabilitamos todo excepto el DNI y el botón de verificar
         layoutNombre.setEnabled(false);
-        layoutApellido.setEnabled(false);
         layoutFecha.setEnabled(false);
+        layoutTelefono.setEnabled(false);
         layoutCorreo.setEnabled(false);
         layoutClave.setEnabled(false);
         layoutConfirmar.setEnabled(false);
-        btnRegistrar.setEnabled(false);
+        btnSiguiente.setEnabled(false);
     }
 
     private void habilitarFormularioPostVerificacion() {
-        // Habilitamos el resto del formulario
         layoutFecha.setEnabled(true);
+        layoutTelefono.setEnabled(true);
         layoutCorreo.setEnabled(true);
         layoutClave.setEnabled(true);
         layoutConfirmar.setEnabled(true);
-        btnRegistrar.setEnabled(true);
+        btnSiguiente.setEnabled(true);
 
-        // Bloqueamos los campos ya verificados
         edDNI.setEnabled(false);
         btnVerificarDNI.setEnabled(false);
-        layoutNombre.setEnabled(false); // Mantenemos el nombre bloqueado
-        layoutApellido.setEnabled(false); // Mantenemos el apellido bloqueado
+        layoutNombre.setEnabled(false); // Mantenemos el nombre bloqueado después de autocompletar
     }
 
-    private void setupClickListeners(){
-        btnPacienteExistente.setOnClickListener(view -> {
-            Intent intent = new Intent(RegistrarActivity.this, LoginActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-        });
-
+    private void setupClickListeners() {
         edFechaNacimiento.setOnClickListener(v -> mostrarCalendario());
 
         btnVerificarDNI.setOnClickListener(v -> {
@@ -133,94 +117,85 @@ public class RegistrarActivity extends AppCompatActivity {
             }
         });
 
-        btnRegistrar.setOnClickListener(view -> {
-            // Recolectamos todos los datos
-            String dni = edDNI.getText().toString().trim();
+        btnSiguiente.setOnClickListener(v -> {
             String nombre = edNombre.getText().toString().trim();
-            String apellido = edApellido.getText().toString().trim();
+            String dni = edDNI.getText().toString().trim();
             String fechaNacimiento = edFechaNacimiento.getText().toString().trim();
+            String telefono = edTelefono.getText().toString().trim();
             String correo = edCorreo.getText().toString().trim();
             String clave = edClave.getText().toString().trim();
             String confirmarClave = edConfirmarClave.getText().toString().trim();
 
-            // Validaciones
-            if (fechaNacimiento.isEmpty() || correo.isEmpty() || clave.isEmpty() || confirmarClave.isEmpty()){
-                Toast.makeText(getApplicationContext(), "Por favor, llene todos los campos restantes", Toast.LENGTH_SHORT).show();
+            if (nombre.isEmpty() || fechaNacimiento.isEmpty() || telefono.isEmpty() || correo.isEmpty() || clave.isEmpty() || confirmarClave.isEmpty()) {
+                Toast.makeText(getApplicationContext(), "Por favor, llene todos los campos", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (!clave.equals(confirmarClave)){
+            if (!clave.equals(confirmarClave)) {
                 Toast.makeText(getApplicationContext(), "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (!Validaciones.esValido(clave)){
-                Toast.makeText(getApplicationContext(),
-                        "La contraseña debe tener mínimo 8 caracteres, una letra, un número y un caracter especial", Toast.LENGTH_LONG).show();
+            if (!Validaciones.esValido(clave)) {
+                Toast.makeText(this, "La contraseña no cumple los requisitos de seguridad.", Toast.LENGTH_LONG).show();
                 return;
             }
-
             if (!Validaciones.esFechaNacimientoValida(fechaNacimiento)) {
-                // Ahora la Activity se encarga de mostrar el mensaje
-                Toast.makeText(getApplicationContext(), "La fecha de nacimiento no es válida. Debes ser mayor de 18 años.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "La fecha de nacimiento no es válida. Debes ser mayor de 18 años.", Toast.LENGTH_LONG).show();
                 return;
             }
 
-            // Si todo es válido, registramos
-            BaseDeDatos bd = new BaseDeDatos(getApplicationContext());
-            long idUsuario = bd.registrarUsuario(correo, clave, "paciente");
-
-            if (idUsuario == -1) {
-                Toast.makeText(getApplicationContext(), "El correo electrónico ya está en uso", Toast.LENGTH_SHORT).show();
-            } else {
-                bd.registrarPaciente(idUsuario, dni, nombre, apellido, fechaNacimiento);
-                hayCambiosSinGuardar = false;
-                Toast.makeText(getApplicationContext(), "¡Registro exitoso!", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(RegistrarActivity.this, LoginActivity.class));
-                finish();
-            }
+            hayCambiosSinGuardar = false;
+            Intent intent = new Intent(RegistrarDoctorPaso1Activity.this, RegistrarDoctorPaso2Activity.class);
+            intent.putExtra("NOMBRE", nombre);
+            intent.putExtra("DNI", dni);
+            intent.putExtra("FECHA_NACIMIENTO", fechaNacimiento);
+            intent.putExtra("TELEFONO", telefono);
+            intent.putExtra("CORREO", correo);
+            intent.putExtra("CLAVE", clave);
+            startActivity(intent);
         });
     }
 
     private void verificarDNIconAPI(String dni) {
         Toast.makeText(this, "Verificando DNI...", Toast.LENGTH_SHORT).show();
-        btnVerificarDNI.setEnabled(false); // Deshabilitamos el botón mientras verifica
-
+        btnVerificarDNI.setEnabled(false);
 
         String url = "https://api.decolecta.com/v1/reniec/dni?numero=" + dni;
+
+
         final String token = "Bearer sk_10867.J8lZpYyBORPYrrUvtI14fwpxgKC8JWN9";
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 response -> {
-
                     try {
                         String nombres = response.getString("first_name");
                         String apellidoPaterno = response.getString("first_last_name");
                         String apellidoMaterno = response.getString("second_last_name");
 
-                        // Capitalizamos los nombres para que se vean mejor (ej. ROXANA -> Roxana)
-                        edNombre.setText(Validaciones.capitalizarPalabras(nombres));
-                        edApellido.setText(Validaciones.capitalizarPalabras(apellidoPaterno + " " + apellidoMaterno));
 
-                        habilitarFormularioPostVerificacion(); // Desbloqueamos el resto del formulario
+                        String nombreCompleto = nombres + " " + apellidoPaterno + " " + apellidoMaterno;
+                        edNombre.setText(Validaciones.capitalizarPalabras(nombreCompleto));
 
-                        Toast.makeText(this, "DNI verificado. Por favor, complete el resto de sus datos.", Toast.LENGTH_LONG).show();
+                        habilitarFormularioPostVerificacion();
+                        Toast.makeText(this, "DNI verificado. Complete el resto de datos.", Toast.LENGTH_LONG).show();
 
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        Toast.makeText(this, "Error al procesar la respuesta del DNI.", Toast.LENGTH_SHORT).show();
-                        btnVerificarDNI.setEnabled(true);
+                        Toast.makeText(this, "Error al procesar la respuesta. Ingrese sus datos manualmente.", Toast.LENGTH_LONG).show();
+                        layoutNombre.setEnabled(true);
+                        habilitarFormularioPostVerificacion();
                     }
                 },
                 error -> {
-                    // Si Decolecta da un error (DNI no encontrado, token inválido, etc.)
-                    Toast.makeText(this, "El DNI ingresado no existe o no pudo ser verificado.", Toast.LENGTH_LONG).show();
-                    btnVerificarDNI.setEnabled(true);
+                    Toast.makeText(this, "DNI no encontrado. Ingrese sus datos manualmente.", Toast.LENGTH_LONG).show();
+                    // Habilitamos el formulario para ingreso manual si el DNI no se encuentra
+                    layoutNombre.setEnabled(true);
+                    habilitarFormularioPostVerificacion();
                 }
         ) {
-            //  VOLVEMOS A USAR LA CABECERA DE AUTORIZACIÓN
             @Override
             public java.util.Map<String, String> getHeaders() {
                 java.util.Map<String, String> headers = new java.util.HashMap<>();
-                headers.put("Content-Type", "application/json"); // Como indica la documentación
+                headers.put("Content-Type", "application/json");
                 headers.put("Authorization", token);
                 return headers;
             }
@@ -228,10 +203,12 @@ public class RegistrarActivity extends AppCompatActivity {
         colaPeticiones.add(request);
     }
 
+    // --- El resto de los métodos auxiliares ---
+
     private void mostrarCalendario() {
         final Calendar c = Calendar.getInstance();
         DatePickerDialog datePickerDialog = new DatePickerDialog(
-                RegistrarActivity.this,
+                RegistrarDoctorPaso1Activity.this,
                 (view, year, monthOfYear, dayOfMonth) -> {
                     String fechaFormateada = String.format(Locale.getDefault(), "%02d/%02d/%d", dayOfMonth, (monthOfYear + 1), year);
                     edFechaNacimiento.setText(fechaFormateada);
@@ -240,17 +217,17 @@ public class RegistrarActivity extends AppCompatActivity {
         );
         datePickerDialog.show();
     }
+
     private void setupChangeListeners() {
         TextWatcher textWatcher = new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) { hayCambiosSinGuardar = true; }
             @Override public void afterTextChanged(Editable s) {}
         };
-
         edDNI.addTextChangedListener(textWatcher);
         edNombre.addTextChangedListener(textWatcher);
-        edApellido.addTextChangedListener(textWatcher);
         edFechaNacimiento.addTextChangedListener(textWatcher);
+        edTelefono.addTextChangedListener(textWatcher);
         edCorreo.addTextChangedListener(textWatcher);
         edClave.addTextChangedListener(textWatcher);
         edConfirmarClave.addTextChangedListener(textWatcher);
@@ -262,9 +239,9 @@ public class RegistrarActivity extends AppCompatActivity {
             @Override
             public void handleOnBackPressed() {
                 if (hayCambiosSinGuardar) {
-                    new AlertDialog.Builder(RegistrarActivity.this)
+                    new AlertDialog.Builder(RegistrarDoctorPaso1Activity.this)
                             .setTitle("Descartar Cambios")
-                            .setMessage("¿Estás seguro de que quieres salir? Los cambios no se guardarán.")
+                            .setMessage("¿Estás seguro de que quieres salir? Los datos ingresados se perderán.")
                             .setPositiveButton("Salir", (dialog, which) -> finish())
                             .setNegativeButton("Cancelar", null)
                             .show();

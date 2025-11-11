@@ -1,12 +1,15 @@
-package com.example.saludmovil;
+package com.example.saludmovil.ui.global;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.saludmovil.R;
+import com.example.saludmovil.ui.doctor.LoginDoctorActivity;
+import com.example.saludmovil.ui.paciente.LoginActivity;
 
 public class RolesActivity extends AppCompatActivity {
 

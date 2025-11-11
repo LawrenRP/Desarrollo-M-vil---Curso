@@ -1,4 +1,4 @@
-package com.example.saludmovil;
+package com.example.saludmovil.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -6,10 +6,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.saludmovil.R;
+import com.example.saludmovil.data.CitaParaPaciente;
 import com.google.android.material.chip.Chip;
-import java.util.List;
 
 import java.util.ArrayList;
 

@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gris_fondo_app" tools:context=".LoginDoctorActivity">
+    android:background="@color/gris_fondo_app" tools:context=".ui.doctor.LoginDoctorActivity">
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="0dp"

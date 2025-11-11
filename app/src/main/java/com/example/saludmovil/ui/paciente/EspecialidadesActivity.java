@@ -1,16 +1,15 @@
-package com.example.saludmovil;
+package com.example.saludmovil.ui.paciente;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView; // Importante: puede ser MaterialCardView también
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.saludmovil.R;
 import com.google.android.material.card.MaterialCardView;
 
 public class EspecialidadesActivity extends AppCompatActivity {

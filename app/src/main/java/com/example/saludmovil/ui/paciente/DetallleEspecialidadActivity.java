@@ -1,12 +1,12 @@
-package com.example.saludmovil;
+package com.example.saludmovil.ui.paciente;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.saludmovil.R;
 import com.google.android.material.appbar.MaterialToolbar;
 
 // Nombre de la clase corregido para que coincida con el manifest

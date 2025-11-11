@@ -17,13 +17,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SaludMovil">
         <activity
-            android:name=".MisCitasPacienteActivity"
+            android:name=".ui.paciente.MisCitasPacienteActivity"
             android:exported="false" />
         <activity
-            android:name=".MisCitasDoctorActivity"
+            android:name=".ui.doctor.MisCitasDoctorActivity"
             android:exported="false" />
         <activity
-            android:name=".SplashActivity"
+            android:name=".ui.global.SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
@@ -33,16 +33,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".RolesActivity"
+            android:name=".ui.global.RolesActivity"
             android:exported="false" />
         <activity
-            android:name=".AgendarCitaActivity"
+            android:name=".ui.paciente.AgendarCitaActivity"
             android:exported="false" />
         <activity
-            android:name=".DetallleEspecialidadActivity"
+            android:name=".ui.paciente.DetallleEspecialidadActivity"
             android:exported="false" />
         <activity
-            android:name=".RitmoCardiacoActivity"
+            android:name=".ui.paciente.RitmoCardiacoActivity"
             android:exported="false" />
 
         <meta-data
@@ -50,34 +50,34 @@
             android:value="AIzaSyCuARYJ_sbl_FPYl3LU2VgjT3A56vAjS-0" />
 
         <activity
-            android:name=".UbicanosMapActivity"
+            android:name=".ui.paciente.UbicanosMapActivity"
             android:exported="false" />
         <activity
-            android:name=".PerfilPacienteActivity"
+            android:name=".ui.paciente.PerfilPacienteActivity"
             android:exported="false" />
         <activity
-            android:name=".InicioDoctorActivity"
+            android:name=".ui.doctor.InicioDoctorActivity"
             android:exported="false" />
         <activity
-            android:name=".RegistrarDoctorPaso2Activity"
+            android:name=".ui.doctor.RegistrarDoctorPaso2Activity"
             android:exported="false" />
         <activity
-            android:name=".RegistrarDoctorPaso1Activity"
+            android:name=".ui.doctor.RegistrarDoctorPaso1Activity"
             android:exported="false" />
         <activity
-            android:name=".LoginDoctorActivity"
+            android:name=".ui.doctor.LoginDoctorActivity"
             android:exported="false" />
         <activity
-            android:name=".EspecialidadesActivity"
+            android:name=".ui.paciente.EspecialidadesActivity"
             android:exported="false" />
         <activity
-            android:name=".InicioActivity"
+            android:name=".ui.paciente.InicioActivity"
             android:exported="false" />
         <activity
-            android:name=".RegistrarActivity"
+            android:name=".ui.paciente.RegistrarActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".ui.paciente.LoginActivity"
             android:exported="false" />
     </application>
 

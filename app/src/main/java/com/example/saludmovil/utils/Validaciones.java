@@ -1,4 +1,4 @@
-package com.example.saludmovil;
+package com.example.saludmovil.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

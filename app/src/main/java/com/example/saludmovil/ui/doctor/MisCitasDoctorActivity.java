@@ -1,15 +1,18 @@
-package com.example.saludmovil;
+package com.example.saludmovil.ui.doctor;
 
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.saludmovil.database.BaseDeDatos;
+import com.example.saludmovil.data.Cita;
+import com.example.saludmovil.adapters.CitasDoctorAdapter;
+import com.example.saludmovil.R;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/gris_fondo_app"
-    tools:context=".EspecialidadesActivity">
+    tools:context=".ui.paciente.EspecialidadesActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"

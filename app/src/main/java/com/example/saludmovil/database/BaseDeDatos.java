@@ -1,4 +1,4 @@
-package com.example.saludmovil;
+package com.example.saludmovil.database;
 
 import android.content.ContentValues;
 import android.content.Context;

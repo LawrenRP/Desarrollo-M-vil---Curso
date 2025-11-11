@@ -1,4 +1,4 @@
-package com.example.saludmovil;
+package com.example.saludmovil.data;
 public class CitaParaPaciente {
 
     private int idCita;

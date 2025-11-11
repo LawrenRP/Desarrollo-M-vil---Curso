@@ -1,4 +1,4 @@
-package com.example.saludmovil;
+package com.example.saludmovil.ui.doctor;
 
 import android.Manifest;
 import android.app.NotificationChannel;
@@ -24,6 +24,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.saludmovil.database.BaseDeDatos;
+import com.example.saludmovil.R;
+import com.example.saludmovil.ui.global.RolesActivity;
 import com.google.android.material.card.MaterialCardView;
 
 import java.text.SimpleDateFormat;
