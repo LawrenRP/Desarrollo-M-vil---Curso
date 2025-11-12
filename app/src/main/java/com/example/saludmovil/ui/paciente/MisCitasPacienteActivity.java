@@ -68,15 +68,28 @@ public class MisCitasPacienteActivity extends AppCompatActivity implements Citas
         Cursor cursor = bd.getTodasCitasPaciente(idUsuarioPaciente);
 
         if (cursor != null && cursor.moveToFirst()) {
-            do {
-                int idCita = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
-                String fecha = cursor.getString(cursor.getColumnIndexOrThrow("fecha"));
-                String hora = cursor.getString(cursor.getColumnIndexOrThrow("hora"));
-                String estado = cursor.getString(cursor.getColumnIndexOrThrow("estado"));
-                String motivo = cursor.getString(cursor.getColumnIndexOrThrow("motivo"));
-                String nombreDoctor = cursor.getString(cursor.getColumnIndexOrThrow("nombre_completo"));
+            // Obtenemos los índices una sola vez, fuera del bucle
+            int idCitaIndex = cursor.getColumnIndex("id");
+            int fechaIndex = cursor.getColumnIndex("fecha");
+            int horaIndex = cursor.getColumnIndex("hora");
+            int estadoIndex = cursor.getColumnIndex("estado");
+            int motivoIndex = cursor.getColumnIndex("motivo");
+            int doctorIndex = cursor.getColumnIndex("nombre_completo");
 
-                listaDeCitas.add(new CitaParaPaciente(idCita, fecha, hora, estado, motivo, nombreDoctor));
+            do {
+                // Verificamos que todas las columnas existan
+                if (idCitaIndex != -1 && fechaIndex != -1 && horaIndex != -1 && estadoIndex != -1 &&
+                        motivoIndex != -1 && doctorIndex != -1) {
+
+                    int idCita = cursor.getInt(idCitaIndex);
+                    String fecha = cursor.getString(fechaIndex);
+                    String hora = cursor.getString(horaIndex);
+                    String estado = cursor.getString(estadoIndex);
+                    String motivo = cursor.getString(motivoIndex);
+                    String nombreDoctor = cursor.getString(doctorIndex);
+
+                    listaDeCitas.add(new CitaParaPaciente(idCita, fecha, hora, estado, motivo, nombreDoctor));
+                }
             } while (cursor.moveToNext());
             cursor.close();
         }

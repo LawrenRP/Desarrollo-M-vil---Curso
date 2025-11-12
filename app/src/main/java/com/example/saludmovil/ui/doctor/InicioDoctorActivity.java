@@ -42,15 +42,14 @@ public class InicioDoctorActivity extends AppCompatActivity {
     private TextView tvProximaCitaPaciente;
 
     private int idUsuarioDoctor;
-    private static final String CHANNEL_ID = "citas_doctores_channel";
+    private BaseDeDatos bd; // ✨ Hacemos la BD una variable de la clase
 
+    private static final String CHANNEL_ID = "citas_doctores_channel";
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    enviarNotificacionProximaCitaDoctor();
-                } else {
-                    Toast.makeText(this, "No se mostrarán notificaciones de citas.", Toast.LENGTH_SHORT).show();
-                }
+                // Independientemente del permiso, cargamos la info
+                // El método interno se encargará de si envía o no la notificación
+                cargarDatosDeInicio();
             });
 
     @Override
@@ -58,6 +57,7 @@ public class InicioDoctorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inicio_doctor);
 
+        // --- Vinculamos Vistas ---
         saludoDoctor = findViewById(R.id.saludoDoctor);
         cardDoctorCitas = findViewById(R.id.cardDoctorCitas);
         cardDoctorBuscarPaciente = findViewById(R.id.cardDoctorBuscarPaciente);
@@ -66,6 +66,10 @@ public class InicioDoctorActivity extends AppCompatActivity {
         cardProximaCitaDoctor = findViewById(R.id.cardProximaCitaDoctor);
         tvProximaCitaInfo = findViewById(R.id.tvProximaCitaInfo);
         tvProximaCitaPaciente = findViewById(R.id.tvProximaCitaPaciente);
+
+        bd = new BaseDeDatos(this); // ✨ Inicializamos la BD una sola vez
+
+        // --- Obtenemos Sesión ---
         SharedPreferences sp = getSharedPreferences("datos_usuario", MODE_PRIVATE);
         idUsuarioDoctor = sp.getInt("id_usuario", -1);
         String rolUsuario = sp.getString("rol_usuario", "");
@@ -76,36 +80,45 @@ public class InicioDoctorActivity extends AppCompatActivity {
             return;
         }
 
-        mostrarSaludoPersonalizado();
-        cargarProximaCita();
-
+        // --- Configuramos Listeners ---
         cardDoctorSalir.setOnClickListener(v -> irALogin());
         cardDoctorCitas.setOnClickListener(v -> {
             Intent intent = new Intent(InicioDoctorActivity.this, MisCitasDoctorActivity.class);
             startActivity(intent);
         });
         cardDoctorBuscarPaciente.setOnClickListener(v -> Toast.makeText(this, "Abriendo Buscador de Pacientes...", Toast.LENGTH_SHORT).show());
-        cardDoctorPerfil.setOnClickListener(v -> Toast.makeText(this, "Abriendo Mi Perfil...", Toast.LENGTH_SHORT).show());
+        cardDoctorPerfil.setOnClickListener(v -> {
+            Intent intent = new Intent(InicioDoctorActivity.this, PerfilDoctorActivity.class);
+            startActivity(intent);
+        });
 
-
+        // --- Ajuste de UI (EdgeToEdge) ---
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        // --- Cargamos todos los datos ---
+        mostrarSaludoPersonalizado();
         crearCanalDeNotificacion();
-        solicitarPermisoYEnviarNotificacion();
+        solicitarPermisoYCargarDatos(); // ✨ Un solo método de arranque
     }
-    private void solicitarPermisoYEnviarNotificacion() {
+
+    private void solicitarPermisoYCargarDatos() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
                     PackageManager.PERMISSION_GRANTED) {
-                enviarNotificacionProximaCitaDoctor();
+                // Permiso concedido, cargamos todo
+                cargarDatosDeInicio();
             } else {
+                // No tenemos permiso, lo pedimos.
+                // El launcher se encargará de llamar a cargarDatosDeInicio()
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
             }
         } else {
-            enviarNotificacionProximaCitaDoctor();
+            // Versiones antiguas, no se necesita permiso, cargamos todo
+            cargarDatosDeInicio();
         }
     }
 
@@ -122,24 +135,30 @@ public class InicioDoctorActivity extends AppCompatActivity {
         }
     }
 
-    private void enviarNotificacionProximaCitaDoctor() {
-        BaseDeDatos bd = new BaseDeDatos(this);
+    // --- ✨ MÉTODO UNIFICADO (Optimizado) ✨ ---
+    // Este método ahora hace el trabajo de cargarProximaCita Y enviarNotificacion
+    private void cargarDatosDeInicio() {
+        // Consultamos la BD UNA SOLA VEZ
         Cursor cursor = bd.getProximaCitaDoctor(idUsuarioDoctor);
 
         if (cursor != null && cursor.moveToFirst()) {
+            // --- 1. Extraemos los datos ---
             int fechaIndex = cursor.getColumnIndex("fecha");
             int horaIndex = cursor.getColumnIndex("hora");
             int nombreIndex = cursor.getColumnIndex("nombre");
             int apellidoIndex = cursor.getColumnIndex("apellido");
-
             String fechaCita = cursor.getString(fechaIndex);
             String horaCita = cursor.getString(horaIndex);
             String nombrePaciente = cursor.getString(nombreIndex);
             String apellidoPaciente = cursor.getString(apellidoIndex);
 
-            cursor.close();
-            bd.close();
+            // --- 2. Mostramos la TARJETA ---
+            String fechaFormateada = formatearFecha(fechaCita);
+            tvProximaCitaInfo.setText(fechaFormateada + " - " + horaCita);
+            tvProximaCitaPaciente.setText("Paciente: " + nombrePaciente + " " + apellidoPaciente);
+            cardProximaCitaDoctor.setVisibility(View.VISIBLE);
 
+            // --- 3. Enviamos la NOTIFICACIÓN PUSH ---
             String titulo = "Próxima Cita";
             String texto = "Tu próxima cita es con el paciente " + nombrePaciente + " " + apellidoPaciente +
                     " el " + fechaCita + " a las " + horaCita;
@@ -159,37 +178,25 @@ public class InicioDoctorActivity extends AppCompatActivity {
 
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
             try {
-                notificationManager.notify(2, builder.build());
+                // Verificamos el permiso OTRA VEZ por si acaso (necesario para el try/catch)
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                    notificationManager.notify(2, builder.build());
+                }
             } catch (SecurityException e) {
                 e.printStackTrace();
             }
+
         } else {
-            if(cursor != null) cursor.close();
-            bd.close();
-        }
-    }
-    private void cargarProximaCita() {
-        BaseDeDatos bd = new BaseDeDatos(this);
-        Cursor cursor = bd.getProximaCitaDoctor(idUsuarioDoctor);
-        if (cursor != null && cursor.moveToFirst()) {
-            int fechaIndex = cursor.getColumnIndex("fecha");
-            int horaIndex = cursor.getColumnIndex("hora");
-            int nombreIndex = cursor.getColumnIndex("nombre");
-            int apellidoIndex = cursor.getColumnIndex("apellido");
-            String fecha = cursor.getString(fechaIndex);
-            String hora = cursor.getString(horaIndex);
-            String nombre = cursor.getString(nombreIndex);
-            String apellido = cursor.getString(apellidoIndex);
-            String fechaFormateada = formatearFecha(fecha);
-            tvProximaCitaInfo.setText(fechaFormateada + " - " + hora);
-            tvProximaCitaPaciente.setText("Paciente: " + nombre + " " + apellido);
-            cardProximaCitaDoctor.setVisibility(View.VISIBLE);
-        } else {
+            // Si no hay citas, ocultamos la tarjeta
             cardProximaCitaDoctor.setVisibility(View.GONE);
         }
-        if (cursor != null) cursor.close();
-        bd.close();
+
+        // Cerramos el cursor
+        if(cursor != null) cursor.close();
     }
+
+    // --- ✨ YA NO NECESITAMOS el método duplicado 'enviarNotificacionProximaCitaDoctor' ---
+    // --- ✨ YA NO NECESITAMOS el método duplicado 'cargarProximaCita' ---
 
     private String formatearFecha(String fechaDB) {
         try {
@@ -204,12 +211,12 @@ public class InicioDoctorActivity extends AppCompatActivity {
     }
 
     private void mostrarSaludoPersonalizado() {
-        BaseDeDatos bd = new BaseDeDatos(getApplicationContext());
+        // Ya no abrimos/cerramos la BD aquí, ya está abierta
         String nombreDoctor = bd.getNombreDoctor(idUsuarioDoctor);
         if (nombreDoctor != null && !nombreDoctor.isEmpty()) {
             saludoDoctor.setText("¡Bienvenido, " + nombreDoctor + "!");
         }
-        bd.close();
+        // No cerramos la BD aquí, se cierra en onDestroy
     }
 
     private void irALogin() {
@@ -219,5 +226,14 @@ public class InicioDoctorActivity extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+
+    // ✨ NUEVO: Cerramos la BD cuando la actividad se destruye
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (bd != null) {
+            bd.close();
+        }
     }
 }

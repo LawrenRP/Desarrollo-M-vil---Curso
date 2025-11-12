@@ -42,6 +42,9 @@
             android:name=".ui.paciente.DetallleEspecialidadActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.doctor.PerfilDoctorActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.paciente.RitmoCardiacoActivity"
             android:exported="false" />
 
@@ -79,6 +82,16 @@
         <activity
             android:name=".ui.paciente.LoginActivity"
             android:exported="false" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

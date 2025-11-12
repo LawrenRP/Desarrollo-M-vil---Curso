@@ -357,4 +357,33 @@ public class BaseDeDatos extends SQLiteOpenHelper {
                 "ORDER BY c.fecha DESC, c.hora DESC";
         return db.rawQuery(query, new String[]{String.valueOf(idPaciente)});
     }
+
+    public Cursor getPerfilDoctor(int idUsuarioDoctor){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT d.*, u.correo " +
+                "FROM doctores d " +
+                "JOIN usuarios u ON d.id_usuario = u.id " +
+                "WHERE d.id_usuario = ?";
+        return db.rawQuery(query, new String[]{String.valueOf(idUsuarioDoctor)});
+    }
+
+    public void actualizarPerfilDoctor(int idUsuarioDoctor, String nuevoTelefono, String nuevoCorreo){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cvDoctor = new ContentValues();
+        cvDoctor.put("celular", nuevoTelefono);
+        db.update("doctores", cvDoctor, "id_usuario = ?", new String[]{String.valueOf(idUsuarioDoctor)});
+        ContentValues cvUsuario = new ContentValues();
+        cvUsuario.put("correo", nuevoCorreo);
+        db.update("usuarios", cvUsuario, "id = ?", new String[]{String.valueOf(idUsuarioDoctor)});
+        db.close();
+    }
+
+    public void actualizarTituloDoctor(int idUsuarioDoctor, String nuevaRutaTitulo) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("ruta_titulo_universitario", nuevaRutaTitulo);
+        db.update("doctores", cv, "id_usuario = ?", new String[]{String.valueOf(idUsuarioDoctor)});
+        db.close();
+    }
+
 }

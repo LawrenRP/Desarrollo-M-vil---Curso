@@ -71,22 +71,35 @@ public class MisCitasDoctorActivity extends AppCompatActivity implements CitasDo
         Cursor cursor = bd.getTodasCitasDoctor(idUsuarioDoctor);
 
         if (cursor != null && cursor.moveToFirst()) {
+            // Obtenemos los índices una sola vez, fuera del bucle
+            int idCitaIndex = cursor.getColumnIndex("id");
+            int fechaIndex = cursor.getColumnIndex("fecha");
+            int horaIndex = cursor.getColumnIndex("hora");
+            int estadoIndex = cursor.getColumnIndex("estado");
+            int motivoIndex = cursor.getColumnIndex("motivo");
+            int nombreIndex = cursor.getColumnIndex("nombre");
+            int apellidoIndex = cursor.getColumnIndex("apellido");
+
             do {
-                int idCita = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
-                String fecha = cursor.getString(cursor.getColumnIndexOrThrow("fecha"));
-                String hora = cursor.getString(cursor.getColumnIndexOrThrow("hora"));
-                String estado = cursor.getString(cursor.getColumnIndexOrThrow("estado"));
-                String motivo = cursor.getString(cursor.getColumnIndexOrThrow("motivo"));
-                String nombrePaciente = cursor.getString(cursor.getColumnIndexOrThrow("nombre")) + " " + cursor.getString(cursor.getColumnIndexOrThrow("apellido"));
+                // Verificamos que todas las columnas existan antes de leer
+                if (idCitaIndex != -1 && fechaIndex != -1 && horaIndex != -1 && estadoIndex != -1 &&
+                        motivoIndex != -1 && nombreIndex != -1 && apellidoIndex != -1) {
 
-                listaDeCitas.add(new Cita(idCita, fecha, hora, estado, motivo, nombrePaciente));
+                    int idCita = cursor.getInt(idCitaIndex);
+                    String fecha = cursor.getString(fechaIndex);
+                    String hora = cursor.getString(horaIndex);
+                    String estado = cursor.getString(estadoIndex);
+                    String motivo = cursor.getString(motivoIndex);
+                    String nombrePaciente = cursor.getString(nombreIndex) + " " + cursor.getString(apellidoIndex);
 
+                    listaDeCitas.add(new Cita(idCita, fecha, hora, estado, motivo, nombrePaciente));
+                }
             } while (cursor.moveToNext());
             cursor.close();
         }
+
         adapter.setCitas(listaDeCitas);
         adapter.filtrarPorEstado("Todos");
-
     }
     @Override
     public void onCitaClick(Cita cita) {

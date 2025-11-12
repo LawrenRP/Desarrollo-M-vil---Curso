@@ -1,7 +1,9 @@
 package com.example.saludmovil.ui.doctor;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -12,14 +14,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.saludmovil.database.BaseDeDatos;
 import com.example.saludmovil.R;
+import com.example.saludmovil.database.BaseDeDatos;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class RegistrarDoctorPaso2Activity extends AppCompatActivity {
@@ -31,8 +38,10 @@ public class RegistrarDoctorPaso2Activity extends AppCompatActivity {
     MaterialToolbar toolbar;
     private boolean hayCambiosSinGuardar = false;
 
-
     private String nombrePaso1, dniPaso1, fechaNacPaso1, telefonoPaso1, correoPaso1, clavePaso1;
+
+    private ActivityResultLauncher<String> filePickerLauncher;
+    private String rutaTituloGuardado = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,63 +60,92 @@ public class RegistrarDoctorPaso2Activity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-
         recuperarDatosDelPaso1();
-
         setupBackButton();
         setupChangeListeners();
-        setupEspecialidades(); // Lo llamamos después de recuperar los datos
+        setupEspecialidades();
 
+        filePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.GetContent(),
+                uri -> {
+                    if (uri != null) {
+                        String cmp = edCMP.getText().toString().trim();
+                        if (cmp.isEmpty()) {
+                            Toast.makeText(this, "Por favor, ingresa tu CMP antes de subir el título", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+                        String nombreArchivo = "titulo_cmp_" + cmp + ".pdf";
+                        boolean exito = copiarArchivoPrivado(uri, nombreArchivo);
+
+                        if (exito) {
+                            rutaTituloGuardado = nombreArchivo;
+                            tvArchivoSeleccionado.setText(nombreArchivo);
+                            hayCambiosSinGuardar = true;
+                            Toast.makeText(this, "Título adjuntado con éxito", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, "Error al guardar el archivo", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(this, "No se seleccionó ningún archivo", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
         btnAdjuntarTitulo.setOnClickListener(v -> {
-            tvArchivoSeleccionado.setText("titulo_medico.pdf");
-            hayCambiosSinGuardar = true;
-            Toast.makeText(this, "Archivo seleccionado (simulación)", Toast.LENGTH_SHORT).show();
+            try {
+                filePickerLauncher.launch("application/pdf");
+            } catch (Exception e) {
+                Toast.makeText(this, "No se encontró una aplicación para seleccionar archivos", Toast.LENGTH_SHORT).show();
+            }
         });
-
 
         btnFinalizar.setOnClickListener(v -> {
             String cmp = edCMP.getText().toString().trim();
             String especialidad = autoCompleteEspecialidad.getText().toString().trim();
-            String archivo = tvArchivoSeleccionado.getText().toString();
-
-            if (cmp.isEmpty() || especialidad.isEmpty() || archivo.equals("Ningún archivo seleccionado")){
-                Toast.makeText(this, "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
+            if (cmp.isEmpty() || especialidad.isEmpty() || rutaTituloGuardado.isEmpty()){
+                Toast.makeText(this, "Por favor, complete todos los campos y adjunte su título", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-
             BaseDeDatos bd = new BaseDeDatos(getApplicationContext());
-
-            // 1. Intentamos registrar el usuario (correo y clave)
             long idUsuario = bd.registrarUsuario(correoPaso1, clavePaso1, "doctor");
 
             if (idUsuario != -1) {
-                // Si el usuario se creó con éxito...
-                // 2. Registramos sus datos personales en la tabla de doctores
                 bd.registrarDoctorPaso1(idUsuario, nombrePaso1, dniPaso1, fechaNacPaso1, telefonoPaso1);
-
-                // 3. Obtenemos el ID de la especialidad (tu método lo crea si no existe)
                 int idEspecialidad = bd.getIdEspecialidad(especialidad);
-                String rutaTituloSimulada = "path/to/" + archivo; // Ruta simulada del archivo
 
-                // 4. Actualizamos el registro del doctor con sus datos profesionales
-                bd.registrarDoctorPaso2(idUsuario, cmp, idEspecialidad, rutaTituloSimulada);
+                bd.registrarDoctorPaso2(idUsuario, cmp, idEspecialidad, rutaTituloGuardado);
 
                 hayCambiosSinGuardar = false;
                 Toast.makeText(getApplicationContext(), "¡Registro de doctor completado con éxito!", Toast.LENGTH_LONG).show();
 
-                // Llevamos al usuario al Login principal, que ya sabe manejar doctores
                 Intent intent = new Intent(RegistrarDoctorPaso2Activity.this, LoginDoctorActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
                 finish();
 
             } else {
-                // Si idUsuario es -1, significa que el correo ya existe
                 Toast.makeText(getApplicationContext(), "Error: El correo electrónico ya está en uso.", Toast.LENGTH_LONG).show();
-
             }
         });
+    }
+    private boolean copiarArchivoPrivado(Uri uri, String nombreArchivo) {
+        try (InputStream inputStream = getContentResolver().openInputStream(uri);
+             FileOutputStream outputStream = openFileOutput(nombreArchivo, Context.MODE_PRIVATE)) {
+
+            if (inputStream == null) return false;
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
+            outputStream.flush();
+            return true;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private void recuperarDatosDelPaso1() {
@@ -121,7 +159,6 @@ public class RegistrarDoctorPaso2Activity extends AppCompatActivity {
     }
 
     private void setupEspecialidades() {
-        // MEJORA: Cargamos las especialidades desde la base de datos
         BaseDeDatos bd = new BaseDeDatos(this);
         Cursor cursor = bd.getEspecialidades();
         ArrayList<String> listaEspecialidades = new ArrayList<>();
@@ -133,6 +170,7 @@ public class RegistrarDoctorPaso2Activity extends AppCompatActivity {
             } while (cursor.moveToNext());
         }
         cursor.close();
+        bd.close();
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this, android.R.layout.simple_dropdown_item_1line, listaEspecialidades
