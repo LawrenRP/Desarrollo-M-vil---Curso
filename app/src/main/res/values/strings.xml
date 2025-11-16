@@ -72,4 +72,24 @@
     <string name="especialidad_psicologia">Psicología</string>
     <string name="especialidad_nutricion">Nutrición</string>
 
+
+    <string name="expediente_dni">DNI: %1$s</string>
+    <string name="expediente_nacimiento">Nacimiento: %1$s</string>
+    <string name="expediente_edad">Edad: %1$d años</string>
+    <string name="expediente_estatura_peso">Estatura/Peso: %1$s cm / %2$s kg</string>
+    <string name="expediente_tipo_sangre">Tipo de Sangre: %1$s</string>
+    <string name="expediente_alergias">Alergias: %1$s</string>
+    <string name="expediente_enfermedades">Enf. Crónicas: %1$s</string>
+    <string name="expediente_medicamentos">Medicamentos: %1$s</string>
+    <string name="expediente_contacto">Emergencia: %1$s (%2$s)</string>
+    <string name="expediente_nombre_completo">%1$s %2$s</string>
+    <string name="expediente_edad_na">Edad: N/A</string>
+    <string name="expediente_no_disponible">N/A</string>
+    <string name="expediente_no_registrado">No registradas</string>
+    <string name="expediente_sin_medicamentos_valor">Ninguno</string>
+    <string name="expediente_toolbar_title">Expediente del Paciente</string>
+    <string name="expediente_btn_agendar">Agendar Cita</string>
+    <string name="expediente_btn_receta">Crear Receta</string>
+    <string name="expediente_historial_titulo">Historial de Citas</string>
+    <string name="expediente_sexo">Sexo: %1$s</string>
 </resources>

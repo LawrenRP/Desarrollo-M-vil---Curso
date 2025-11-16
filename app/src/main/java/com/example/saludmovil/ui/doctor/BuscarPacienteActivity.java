@@ -1,5 +1,6 @@
 package com.example.saludmovil.ui.doctor;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -98,10 +99,10 @@ public class BuscarPacienteActivity extends AppCompatActivity implements Pacient
     public void onPacienteClick(Paciente paciente) {
         Toast.makeText(this, "Viendo expediente de: " + paciente.getNombre(), Toast.LENGTH_SHORT).show();
 
-        // --- CÓDIGO A FUTURO ---
-        // Intent intent = new Intent(this, ExpedientePacienteActivity.class);
-        // intent.putExtra("id_paciente", paciente.getIdUsuario());
-        // startActivity(intent);
+
+         Intent intent = new Intent(this, ExpedientePacienteActivity.class);
+         intent.putExtra("id_paciente", paciente.getIdUsuario());
+         startActivity(intent);
     }
 
     @Override

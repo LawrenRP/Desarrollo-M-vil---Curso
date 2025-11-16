@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.saludmovil.R;
@@ -44,12 +45,15 @@ public class CitasDoctorAdapter extends RecyclerView.Adapter<CitasDoctorAdapter.
             tvFechaHora.setText(cita.getFecha() + " - " + cita.getHora());
             tvMotivo.setText(cita.getMotivo());
             chipEstado.setText(cita.getEstado());
-            if ("Completada".equals(cita.getEstado())) {
-
-            } else if ("Cancelada".equals(cita.getEstado())) {
-
+            if ("Completada".equalsIgnoreCase(cita.getEstado())) {
+                chipEstado.setChipBackgroundColorResource(R.color.estado_completada_fondo);
+                chipEstado.setTextColor(ContextCompat.getColor(context, R.color.estado_completada_texto));
+            } else if ("Cancelada".equalsIgnoreCase(cita.getEstado())) {
+                chipEstado.setChipBackgroundColorResource(R.color.estado_cancelada_fondo);
+                chipEstado.setTextColor(ContextCompat.getColor(context, R.color.estado_cancelada_texto));
             } else {
-
+                chipEstado.setChipBackgroundColorResource(R.color.estado_agendada_fondo);
+                chipEstado.setTextColor(ContextCompat.getColor(context, R.color.estado_agendada_texto));
             }
 
             itemView.setOnClickListener(v -> listener.onCitaClick(cita));

@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/gris_fondo_app"
+    tools:context=".ui.doctor.ExpedientePacienteActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/azul_primario">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbarExpediente"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
+            app:title="@string/expediente_toolbar_title"
+            app:titleTextColor="@color/white" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tvExpedienteNombre"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                        android:textStyle="bold"
+                        tools:text="Joaquin Adrian Tumba Murillo" />
+
+                    <TextView
+                        android:id="@+id/tvExpedienteDNI"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="@color/texto_secundario"
+                        tools:text="DNI: 74887566" />
+
+                    <TextView
+                        android:id="@+id/tvExpedienteFechaNac"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        app:drawableStartCompat="@drawable/ic_baseline_calendar_today_24"
+                        android:drawablePadding="8dp"
+                        tools:text="Nacimiento: 28/09/2004" />
+
+                    <TextView
+                        android:id="@+id/tvExpedienteEdad"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        app:drawableStartCompat="@drawable/ic_baseline_person_24"
+                        android:drawablePadding="8dp"
+                        tools:text="Edad: 21 años" />
+
+                    <TextView
+                        android:id="@+id/tvExpedienteSexo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        app:drawableStartCompat="@drawable/ic_baseline_wc_24"
+                        android:drawablePadding="8dp"
+                        tools:text="Sexo: Masculino" />
+
+                    <TextView
+                        android:id="@+id/tvExpedienteEstaturaPeso"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        app:drawableStartCompat="@drawable/health_metrics_24px"
+                        android:drawablePadding="8dp"
+                        tools:text="Estatura/Peso: 184.0 cm / 74.0 kg" />
+
+                    <TextView
+                        android:id="@+id/tvExpedienteTipoSangre"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        app:drawableStartCompat="@drawable/ic_baseline_medical_services_24"
+                        android:drawablePadding="8dp"
+                        tools:text="Tipo de Sangre: A+" />
+
+                    <TextView
+                        android:id="@+id/tvExpedienteAlergias"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        tools:text="Alergias: Polvo" />
+
+                    <TextView
+                        android:id="@+id/tvExpedienteEnfermedades"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        tools:text="Enfermedades Crónicas: No registradas" />
+
+                    <TextView
+                        android:id="@+id/tvExpedienteMedicamentos"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="44dp"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        tools:text="Medicamentos Actuales: Ninguno" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="16dp"
+                        android:background="@color/texto_secundario" />
+
+                    <TextView
+                        android:id="@+id/tvExpedienteContacto"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        app:drawableStartCompat="@drawable/ic_baseline_phone_24"
+                        android:drawablePadding="8dp"
+                        tools:text="Emergencia: Richard Tumba (989234878)" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnExpedienteAgendarCita"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/expediente_btn_agendar"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnExpedienteCrearReceta"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/expediente_btn_receta"/>
+            </LinearLayout>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/expediente_historial_titulo"
+                android:layout_marginTop="24dp"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="@color/texto_principal"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvExpedienteCitas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_cita_historial"
+                tools:itemCount="3"/>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>
