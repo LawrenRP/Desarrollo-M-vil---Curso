@@ -17,6 +17,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SaludMovil">
         <activity
+            android:name=".ui.doctor.BuscarPacienteActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.doctor.SeleccionarMedicamentoActivity"
             android:exported="false" />
         <activity

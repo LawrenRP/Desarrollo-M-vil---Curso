@@ -1,141 +1,46 @@
 package com.example.saludmovil.ui.paciente;
 
-import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.saludmovil.database.BaseDeDatos;
-import com.example.saludmovil.data.CitaParaPaciente;
-import com.example.saludmovil.adapters.CitasPacienteAdapter;
 import com.example.saludmovil.R;
-import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import java.util.ArrayList;
-import java.util.List;
+import com.example.saludmovil.adapters.CitasViewPagerAdapter;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
-public class MisCitasPacienteActivity extends AppCompatActivity implements CitasPacienteAdapter.OnCitaClickListener {
+public class MisCitasPacienteActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerViewCitas;
-    private CitasPacienteAdapter adapter;
-    private ArrayList<CitaParaPaciente> listaDeCitas;
-    private BaseDeDatos bd;
-    private int idUsuarioPaciente;
-
-    private ChipGroup chipGroupFiltroPaciente;
+    private Toolbar toolbar;
+    private TabLayout tabLayout;
+    private ViewPager2 viewPager;
+    private CitasViewPagerAdapter viewPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mis_citas_paciente);
-
-        Toolbar toolbar = findViewById(R.id.toolbarMisCitasPaciente);
+        toolbar = findViewById(R.id.toolbarMisCitasPaciente);
+        tabLayout = findViewById(R.id.tabLayoutCitas);
+        viewPager = findViewById(R.id.viewPagerCitas);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationOnClickListener(v -> finish());
-        SharedPreferences sp = getSharedPreferences("datos_usuario", MODE_PRIVATE);
-        idUsuarioPaciente = sp.getInt("id_usuario", -1);
-        if (idUsuarioPaciente == -1) { /* ... (código de error) ... */ }
 
-        recyclerViewCitas = findViewById(R.id.recyclerViewCitasPaciente);
-        listaDeCitas = new ArrayList<>();
-        bd = new BaseDeDatos(this);
+        viewPagerAdapter = new CitasViewPagerAdapter(this);
 
-        adapter = new CitasPacienteAdapter(this, listaDeCitas, this);
-        recyclerViewCitas.setAdapter(adapter);
-        chipGroupFiltroPaciente = findViewById(R.id.chipGroupFiltroPaciente);
-        chipGroupFiltroPaciente.setOnCheckedStateChangeListener((group, checkedIds) -> {
-            if (checkedIds.isEmpty()) {
-                adapter.filtrarPorEstado("Todos");
-                return;
+        viewPager.setAdapter(viewPagerAdapter);
+
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+            switch (position) {
+                case 0:
+                    tab.setText("Próximas");
+                    break;
+                case 1:
+                    tab.setText("Pasadas");
+                    break;
             }
-            int idDelChip = checkedIds.get(0);
-            Chip chipSeleccionado = group.findViewById(idDelChip);
-            if (chipSeleccionado != null) {
-                adapter.filtrarPorEstado(chipSeleccionado.getText().toString());
-            }
-        });
-        cargarCitasDelPaciente();
-    }
-
-    private void cargarCitasDelPaciente() {
-        listaDeCitas.clear();
-        Cursor cursor = bd.getTodasCitasPaciente(idUsuarioPaciente);
-
-        if (cursor != null && cursor.moveToFirst()) {
-            // Obtenemos los índices una sola vez, fuera del bucle
-            int idCitaIndex = cursor.getColumnIndex("id");
-            int fechaIndex = cursor.getColumnIndex("fecha");
-            int horaIndex = cursor.getColumnIndex("hora");
-            int estadoIndex = cursor.getColumnIndex("estado");
-            int motivoIndex = cursor.getColumnIndex("motivo");
-            int doctorIndex = cursor.getColumnIndex("nombre_completo");
-
-            do {
-                // Verificamos que todas las columnas existan
-                if (idCitaIndex != -1 && fechaIndex != -1 && horaIndex != -1 && estadoIndex != -1 &&
-                        motivoIndex != -1 && doctorIndex != -1) {
-
-                    int idCita = cursor.getInt(idCitaIndex);
-                    String fecha = cursor.getString(fechaIndex);
-                    String hora = cursor.getString(horaIndex);
-                    String estado = cursor.getString(estadoIndex);
-                    String motivo = cursor.getString(motivoIndex);
-                    String nombreDoctor = cursor.getString(doctorIndex);
-
-                    listaDeCitas.add(new CitaParaPaciente(idCita, fecha, hora, estado, motivo, nombreDoctor));
-                }
-            } while (cursor.moveToNext());
-            cursor.close();
-        }
-
-        adapter.setCitas(listaDeCitas);
-        List<Integer> checkedIds = chipGroupFiltroPaciente.getCheckedChipIds();
-        String filtroActual = "Todos";
-        if (!checkedIds.isEmpty()) {
-            Chip chipSeleccionado = findViewById(checkedIds.get(0));
-            if (chipSeleccionado != null) {
-                filtroActual = chipSeleccionado.getText().toString();
-            }
-        }
-        adapter.filtrarPorEstado(filtroActual);
-    }
-
-    @Override
-    public void onCitaClick(CitaParaPaciente cita) {
-        if (cita.getEstado().equalsIgnoreCase("agendada")) {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("Cancelar Cita")
-                    .setMessage("¿Estás seguro de que deseas cancelar tu cita con el " + cita.getNombreDoctor() + "?")
-                    .setPositiveButton("Sí, cancelar", (dialog, which) -> {
-                        actualizarCita(cita.getIdCita(), "Cancelada");
-                    })
-                    .setNegativeButton("No, volver", (dialog, which) -> dialog.dismiss())
-                    .show();
-        } else {
-            Toast.makeText(this, "Esta cita ya está " + cita.getEstado().toLowerCase(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void actualizarCita(int idCita, String nuevoEstado) {
-        boolean exito = bd.actualizarEstadoCita(idCita, nuevoEstado);
-        if (exito) {
-            Toast.makeText(this, "Cita actualizada a: " + nuevoEstado, Toast.LENGTH_SHORT).show();
-            cargarCitasDelPaciente(); // Refrescamos la lista para ver el cambio
-        } else {
-            Toast.makeText(this, "Error al actualizar la cita", Toast.LENGTH_SHORT).show();
-        }
-    }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (bd != null) {
-            bd.close();
-        }
+        }).attach();
     }
 }

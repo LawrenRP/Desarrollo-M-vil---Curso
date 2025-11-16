@@ -386,4 +386,50 @@ public class BaseDeDatos extends SQLiteOpenHelper {
         db.close();
     }
 
+    public Cursor getProximasCitasPaciente(int idPaciente) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String hoy = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+        String query = "SELECT c.id, c.fecha, c.hora, c.estado, c.motivo, d.nombre_completo " +
+                "FROM citas c " +
+                "JOIN doctores d ON c.id_doctor = d.id_usuario " +
+                "WHERE c.id_paciente = ? AND c.estado = 'agendada' AND c.fecha >= ? " +
+                "ORDER BY c.fecha ASC, c.hora ASC"; // Próximas primero
+
+        return db.rawQuery(query, new String[]{String.valueOf(idPaciente), hoy});
+    }
+
+    public Cursor getPasadasCitasPaciente(int idPaciente) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT c.id, c.fecha, c.hora, c.estado, c.motivo, d.nombre_completo " +
+                "FROM citas c " +
+                "JOIN doctores d ON c.id_doctor = d.id_usuario " +
+                "WHERE c.id_paciente = ? AND (c.estado = 'Completada' OR c.estado = 'Cancelada') " +
+                "ORDER BY c.fecha DESC, c.hora DESC"; // Pasadas más recientes primero
+
+        return db.rawQuery(query, new String[]{String.valueOf(idPaciente)});
+    }
+
+    public Cursor buscarPacientesAtendidos(int idDoctor, String terminoBusqueda) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String busquedaLike = "%" + terminoBusqueda + "%";
+
+        String query = "SELECT p.* FROM pacientes p " +
+                "WHERE p.id_usuario IN (SELECT DISTINCT c.id_paciente FROM citas c WHERE c.id_doctor = ?) " +
+                "AND (p.dni LIKE ? OR p.nombre LIKE ? OR p.apellido LIKE ?)";
+
+        return db.rawQuery(query, new String[]{String.valueOf(idDoctor), busquedaLike, busquedaLike, busquedaLike});
+    }
+
+    public Cursor getHistorialDeCitas(int idDoctor, int idPaciente) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM citas " +
+                "WHERE id_doctor = ? AND id_paciente = ? " +
+                "ORDER BY fecha DESC, hora DESC";
+
+        return db.rawQuery(query, new String[]{String.valueOf(idDoctor), String.valueOf(idPaciente)});
+    }
+
 }

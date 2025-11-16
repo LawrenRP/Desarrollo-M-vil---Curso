@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/gris_fondo_app"
-    tools:context=".ui.paciente.MisCitasPacienteActivity">
+    tools:context=".ui.doctor.BuscarPacienteActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -14,28 +14,39 @@
         android:background="@color/azul_primario">
 
         <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbarMisCitasPaciente"
+            android:id="@+id/toolbarBuscarPaciente"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
-            app:title="Mi Historial de Citas"
+            app:title="Buscar Paciente"
             app:titleTextColor="@color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayoutCitas"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutBusqueda"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/blanco"
-        app:tabIndicatorColor="@color/azul_primario"
-        app:tabSelectedTextColor="@color/azul_primario"
-        app:tabTextColor="@color/texto_secundario" />
+        android:layout_margin="16dp"
+        android:hint="Buscar por DNI, Nombre o Apellido"
+        app:startIconDrawable="@drawable/ic_baseline_person_search_24">
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPagerCitas"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etBuscarPaciente"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewBusqueda"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:padding="8dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_paciente_busqueda" />
 
 </LinearLayout>

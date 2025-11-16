@@ -98,7 +98,7 @@ public class InicioActivity extends AppCompatActivity {
 
         configurarListeners();
         crearCanalDeNotificacion();
-        solicitarPermisoYEnviarNotificacion(); // Este método ahora hará todo
+        solicitarPermisoYEnviarNotificacion();
     }
 
     private void solicitarPermisoYEnviarNotificacion() {
@@ -126,29 +126,23 @@ public class InicioActivity extends AppCompatActivity {
             notificationManager.createNotificationChannel(channel);
         }
     }
-
-    // --- ✨ MÉTODO ACTUALIZADO CON LA CORRECCIÓN 2 (EL .post) ✨ ---
     private void revisarYEnviarNotificacion() {
         BaseDeDatos bd = new BaseDeDatos(this);
         Cursor cursor = bd.getProximaCita(idUsuario);
 
         if (cursor != null && cursor.moveToFirst()) {
-            // --- 1. EXTRAEMOS LOS DATOS REALES DE LA BD ---
             int fechaIndex = cursor.getColumnIndex("fecha");
             int horaIndex = cursor.getColumnIndex("hora");
             int doctorIndex = cursor.getColumnIndex("nombre_completo");
 
-            String fechaCitaDB = cursor.getString(fechaIndex); // ej: "2025-11-09"
-            String horaCita = cursor.getString(horaIndex);      // ej: "11:30 AM"
-            String doctorCita = cursor.getString(doctorIndex);  // ej: "Jeraldine Murillo Sequeiros"
+            String fechaCitaDB = cursor.getString(fechaIndex);
+            String horaCita = cursor.getString(horaIndex);
+            String doctorCita = cursor.getString(doctorIndex);
 
             cursor.close();
             bd.close();
+            String fechaFormateada = formatearFecha(fechaCitaDB);
 
-            // --- 2. FORMATEAMOS LA FECHA PARA LA UI ---
-            String fechaFormateada = formatearFecha(fechaCitaDB); // ej: "09 de noviembre"
-
-            // --- 3. MOSTRAMOS LA TARJETA (CON LA CORRECCIÓN DEL .post) ---
             tvCitaPendienteInfo.setText(fechaFormateada + " - " + horaCita);
             tvCitaPendienteDoctor.setText("Con: " + doctorCita);
             cardProximaCita.post(new Runnable() {
@@ -158,7 +152,6 @@ public class InicioActivity extends AppCompatActivity {
                 }
             });
 
-            // --- 4. ENVIAMOS LA NOTIFICACIÓN PUSH ---
             String tituloNotif = "Recordatorio de Cita";
             String textoNotif = "Tu próxima cita es con " + doctorCita + " el " + fechaCitaDB + " a las " + horaCita;
 
@@ -182,7 +175,6 @@ public class InicioActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         } else {
-            // Si no hay cita, nos aseguramos de que la tarjeta esté oculta
             cardProximaCita.post(new Runnable() {
                 @Override
                 public void run() {
@@ -193,8 +185,6 @@ public class InicioActivity extends AppCompatActivity {
             bd.close();
         }
     }
-
-    // --- ✨ MÉTODO AUXILIAR PARA FORMATEAR LA FECHA ✨ ---
     private String formatearFecha(String fechaDB) {
         try {
             SimpleDateFormat formatoEntrada = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -206,9 +196,6 @@ public class InicioActivity extends AppCompatActivity {
             return fechaDB;
         }
     }
-
-
-    // --- El resto de tus métodos (configurarListeners, etc. se mantienen igual) ---
     private void configurarListeners() {
         btnPerfil.setOnClickListener(v -> {
             Intent intent = new Intent(InicioActivity.this, PerfilPacienteActivity.class);
@@ -238,15 +225,11 @@ public class InicioActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // ✨ --- ¡AQUÍ ESTÁ EL CAMBIO! --- ✨
         cardMisCitas.setOnClickListener(v -> {
-            // Cambiamos el 'target' a la nueva activity que diseñamos
-            Intent intent = new Intent(InicioActivity.this, MisCitasActivity.class);
-            // Le pasamos el ID del usuario para que sepa de quién cargar las citas
+            Intent intent = new Intent(InicioActivity.this, MisCitasPacienteActivity.class);
             intent.putExtra("id_usuario", idUsuario);
             startActivity(intent);
         });
-        // ✨ --- FIN DEL CAMBIO --- ✨
 
         cardSalir.setOnClickListener(v -> irALogin());
     }
