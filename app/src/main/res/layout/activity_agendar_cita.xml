@@ -1,39 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/gris_fondo_app"
+    android:orientation="vertical"
     tools:context=".ui.paciente.AgendarCitaActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <!-- ... (Cabecero RelativeLayout sin cambios) ... -->
+    <RelativeLayout
+        android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/azul_primario"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        android:layout_height="180dp"
+        android:background="@color/azul_primario">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbarAgendar"
+        <ImageButton
+            android:id="@+id/buttonRetrocederAgendar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cd_retroceder"
+            android:src="@drawable/ic_baseline_arrow_back_24"
+            app:tint="@color/blanco" />
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
-            app:title="Agendar Cita Médica"
-            app:titleTextColor="@color/white" />
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="24dp">
 
-    </com.google.android.material.appbar.AppBarLayout>
+            <TextView
+                android:id="@+id/tituloAgendar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Agendar Cita Médica"
+                android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                android:textColor="@color/blanco"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/subtituloAgendar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Completa los siguientes pasos"
+                android:textAlignment="center"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="@color/blanco_transparente_subtitulo" />
+        </LinearLayout>
+
+    </RelativeLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="-24dp"
+        android:background="@drawable/rounded_white_background">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingTop="32dp"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="24dp">
 
+            <!-- ... (Pasos 1 y 2 de Especialidad y Doctor sin cambios) ... -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -41,22 +81,18 @@
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textColor="@color/texto_principal"
                 android:textStyle="bold" />
-
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:hint="Especialidad">
-
                 <AutoCompleteTextView
                     android:id="@+id/autoCompleteEspecialidad"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none" />
-
             </com.google.android.material.textfield.TextInputLayout>
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -65,8 +101,6 @@
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textColor="@color/texto_principal"
                 android:textStyle="bold" />
-
-            <!-- ✨ CAMBIO: Reemplazamos el LinearLayout por un Dropdown para Doctores ✨ -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/layoutDoctor"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -74,18 +108,15 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:hint="Elige un Doctor"
-                android:enabled="false">  <!-- Empieza deshabilitado -->
-
+                android:enabled="false">
                 <AutoCompleteTextView
                     android:id="@+id/autoCompleteDoctor"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none" />
-
             </com.google.android.material.textfield.TextInputLayout>
-            <!-- ✨ FIN DEL CAMBIO ✨ -->
 
-
+            <!-- ... (Paso 3 - Selección de Fecha sin cambios) ... -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -94,7 +125,6 @@
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textColor="@color/texto_principal"
                 android:textStyle="bold" />
-
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSeleccionarFecha"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -104,7 +134,6 @@
                 android:text="Seleccionar Fecha"
                 app:icon="@drawable/event_24px"
                 app:iconTint="@color/azul_secundario" />
-
             <TextView
                 android:id="@+id/tvFechaSeleccionada"
                 android:layout_width="match_parent"
@@ -115,18 +144,121 @@
                 android:layout_marginTop="8dp"
                 tools:text="Sábado, 26 de Octubre de 2024"/>
 
+
+            <!-- ✨ INICIO DE LA MEJORA DE HORARIOS (SIN COLORES) ✨ -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Turno Mañana"
+                android:layout_marginTop="16dp"
+                android:textAppearance="?attr/textAppearanceTitleSmall"
+                android:textColor="@color/texto_secundario"
+                android:textStyle="bold" />
+
+            <!-- Grupo Mañana (Usando el estilo estándar) -->
             <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupHorarios"
+                android:id="@+id/chipGroupManana"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="8dp"
                 app:chipSpacingHorizontal="8dp"
                 app:singleSelection="true">
-                <com.google.android.material.chip.Chip style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="09:00 AM"/>
-                <com.google.android.material.chip.Chip style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="09:30 AM"/>
-                <com.google.android.material.chip.Chip style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10:00 AM"/>
-                <com.google.android.material.chip.Chip style="@style/Widget.MaterialComponents.Chip.Choice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="11:30 AM"/>
+
+                <!-- ✨ CAMBIO: Se añadió textAppearanceCaption para reducir el texto -->
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:textAppearance="?attr/textAppearanceCaption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="09:00 AM"/>
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:textAppearance="?attr/textAppearanceCaption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="09:30 AM"/>
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:textAppearance="?attr/textAppearanceCaption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="10:00 AM"/>
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:textAppearance="?attr/textAppearanceCaption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="11:30 AM"/>
             </com.google.android.material.chip.ChipGroup>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Turno Tarde"
+                android:layout_marginTop="16dp"
+                android:textAppearance="?attr/textAppearanceTitleSmall"
+                android:textColor="@color/texto_secundario"
+                android:textStyle="bold" />
+
+            <!-- Grupo Tarde (Usando el estilo estándar) -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupTarde"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:chipSpacingHorizontal="8dp"
+                app:singleSelection="true">
+
+                <!-- ✨ CAMBIO: Se añadió textAppearanceCaption para reducir el texto -->
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:textAppearance="?attr/textAppearanceCaption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="02:00 PM"/>
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:textAppearance="?attr/textAppearanceCaption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="02:30 PM"/>
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:textAppearance="?attr/textAppearanceCaption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="03:00 PM"/>
+            </com.google.android.material.chip.ChipGroup>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Turno Noche"
+                android:layout_marginTop="16dp"
+                android:textAppearance="?attr/textAppearanceTitleSmall"
+                android:textColor="@color/texto_secundario"
+                android:textStyle="bold" />
+
+            <!-- Grupo Noche (Usando el estilo estándar) -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupNoche"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:chipSpacingHorizontal="8dp"
+                app:singleSelection="true">
+
+                <!-- ✨ CAMBIO: Se añadió textAppearanceCaption para reducir el texto -->
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:textAppearance="?attr/textAppearanceCaption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="06:00 PM"/>
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- ✨ FIN DE LA MEJORA DE HORARIOS ✨ -->
 
 
             <TextView
@@ -153,15 +285,17 @@
                     android:minLines="3" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- ✨ CAMBIO: Se añadió textSize para agrandar el texto del botón -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnConfirmarCita"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginTop="32dp"
                 android:text="Confirmar Cita"
+                android:textSize="16sp"
                 app:cornerRadius="16dp"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

@@ -35,5 +35,35 @@
         <item name="cornerSizeBottomRight">0dp</item>
     </style>
 
+    <style name="LabelCategoriaConsulta">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabelLarge</item>
+        <item name="android:textColor">@color/azul_secundario</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="ValorCategoriaConsulta">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceTitleMedium</item>
+        <item name="android:textColor">@color/texto_principal</item>
+    </style>
+
+    <style name="ValorCategoriaConsulta.Secundario">
+        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+        <item name="android:textColor">@color/texto_secundario</item>
+    </style>
+
+    <style name="ItemPerfilConsulta">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+        <item name="android:textColor">@color/texto_secundario</item>
+        <item name="android:drawablePadding">12dp</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
     <style name="Theme.SaludMovil" parent="Base.Theme.SaludMovil" />
 </resources>

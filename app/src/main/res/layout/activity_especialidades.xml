@@ -1,24 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/gris_fondo_app"
+    android:orientation="vertical"
     tools:context=".ui.paciente.EspecialidadesActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
+    <RelativeLayout
+        android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        app:elevation="0dp">
+        android:layout_height="180dp"
+        android:background="@color/azul_primario">
+
+        <ImageButton
+            android:id="@+id/buttonRetrocederEspecialidades"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+
+            android:background="?attr/selectableItemBackgroundBorderless"
+
+            android:contentDescription="@string/cd_retroceder"
+            android:src="@drawable/ic_baseline_arrow_back_24"
+            app:tint="@color/blanco" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:background="@drawable/header_curvo_background"
+            android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="vertical"
             android:padding="24dp">
@@ -30,7 +44,8 @@
                 android:text="@string/Txt_tit_Especialidades"
                 android:textAppearance="?attr/textAppearanceHeadlineMedium"
                 android:textColor="@color/blanco"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
+
             <TextView
                 android:id="@+id/subtituloEspecialistas"
                 android:layout_width="wrap_content"
@@ -39,22 +54,27 @@
                 android:text="@string/Txt_sub_Especialdiades"
                 android:textAlignment="center"
                 android:textAppearance="?attr/textAppearanceBodyMedium"
-                android:textColor="@color/blanco_transparente_subtitulo"/>
+                android:textColor="@color/blanco_transparente_subtitulo" />
         </LinearLayout>
-    </com.google.android.material.appbar.AppBarLayout>
+
+    </RelativeLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+
+        android:background="@drawable/rounded_white_background"
+        android:layout_marginTop="-24dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="16dp"
-            android:paddingTop="16dp"
-            android:paddingBottom="24dp">
+            android:paddingBottom="24dp"
+
+            android:paddingTop="32dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -84,7 +104,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="16dp"
-                            android:text="Medicina General"
+                            android:text="@string/especialidad_medicina_general"
                             android:textAlignment="center"
                             android:textAppearance="?attr/textAppearanceTitleMedium"
                             android:textColor="@color/texto_principal"
@@ -115,7 +135,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="16dp"
-                            android:text="Pediatría"
+                            android:text="@string/especialidad_pediatria"
                             android:textAlignment="center"
                             android:textAppearance="?attr/textAppearanceTitleMedium"
                             android:textColor="@color/texto_principal"
@@ -152,7 +172,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="16dp"
-                            android:text="Cardiología"
+                            android:text="@string/especialidad_cardiologia"
                             android:textAlignment="center"
                             android:textAppearance="?attr/textAppearanceTitleMedium"
                             android:textColor="@color/texto_principal"
@@ -183,7 +203,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="16dp"
-                            android:text="Dermatología"
+                            android:text="@string/especialidad_dermatologia"
                             android:textAlignment="center"
                             android:textAppearance="?attr/textAppearanceTitleMedium"
                             android:textColor="@color/texto_principal"
@@ -220,7 +240,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="16dp"
-                            android:text="Ginecología"
+                            android:text="@string/especialidad_ginecologia"
                             android:textAlignment="center"
                             android:textAppearance="?attr/textAppearanceTitleMedium"
                             android:textColor="@color/texto_principal"
@@ -251,7 +271,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="16dp"
-                            android:text="Odontología"
+                            android:text="@string/especialidad_odontologia"
                             android:textAlignment="center"
                             android:textAppearance="?attr/textAppearanceTitleMedium"
                             android:textColor="@color/texto_principal"
@@ -288,7 +308,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="16dp"
-                            android:text="Psicología"
+                            android:text="@string/especialidad_psicologia"
                             android:textAlignment="center"
                             android:textAppearance="?attr/textAppearanceTitleMedium"
                             android:textColor="@color/texto_principal"
@@ -319,7 +339,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="16dp"
-                            android:text="Nutrición"
+                            android:text="@string/especialidad_nutricion"
                             android:textAlignment="center"
                             android:textAppearance="?attr/textAppearanceTitleMedium"
                             android:textColor="@color/texto_principal"
@@ -331,4 +351,4 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

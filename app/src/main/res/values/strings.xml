@@ -1,51 +1,24 @@
 <resources>
-    <!-- Nombre del proyecto-->
     <string name="app_name">SaludMovil</string>
 
-    <!-- ****************************************** -->
-
-    <!-- Texto de la interfaz "activity_login" -->
-
-    <!-- Encabezado de la interfaz "activity_login" -->
     <string name="Txt_tit_login">Salud Móvil</string>
     <string name="Txt_sub_login">Inicia Sesión</string>
-
-    <!-- cuerpo de la interfaz "activity_login" -->
     <string name="Txt_fld_usuario">Usuario</string>
     <string name="Txt_fld_dni">DNI</string>
     <string name="Txt_fld_contrasena">Contraseña</string>
     <string name="Txt_btn_iniciar">Iniciar Sesión</string>
-
-    <!-- pie de la interfaz "activity_login" -->
     <string name="Txt_fld_registrate">Regístrate</string>
 
-    <!-- ****************************************** -->
-
-    <!-- Texto de la interfaz "activity_registrar" -->
-
-    <!-- Encabezado de la interfaz "activity_login" -->
     <string name="Txt_sub_registar">Registro de nuevo usuario</string>
-
-    <!-- cuerpo de la interfaz "activity_login" -->
     <string name="txt_fld_correo">Correo Electrónico</string>
     <string name="Txt_fld_confirmacion">Confirmar Contraseña</string>
     <string name="txt_btn_registrar">Registrar</string>
-
-    <!-- pie de la interfaz "activity_login" -->
     <string name="Txt_btn_retorno">Ya tengo una cuenta</string>
-
-    <!-- ****************************************** -->
 
     <string name="Txt_sub_login_doctor">Acceso para Profesionales</string>
     <string name="Txt_fld_cmp">Número de Colegiatura (CMP)</string>
     <string name="Txt_btn_registrar_doctor">Registrarme como doctor</string>
 
-    ```
-
-
-    <!-- Texto de la interfaz "activity_inicio" -->
-
-    <!-- cuerpo de la interfaz "activity_inicio" -->
     <string name="Txt_fld_mi_perfil">Mi Perfil</string>
     <string name="Txt_fld_cita">Agenda tu cita</string>
     <string name="Txt_fld_recetas">Recetas Médicas</string>
@@ -54,27 +27,18 @@
     <string name="txt_fld_csesion">Cerrar sesión</string>
     <string name="Txt_fld_ubicanos">Ubícanos</string>
 
-    <!-- ****************************************** -->
-
-    <!-- Texto de la interfaz "activity_especialidades" -->
-
-    <!-- Encabezado de la interfaz "activity_especialdiades" -->
     <string name="Txt_tit_Especialidades">Especialidades</string>
     <string name="Txt_sub_Especialdiades">Descubre el tipo de especialista necesitas</string>
-
-    <!-- cuerpo de la interfaz "activity_especialidades" -->
     <string name="Txt_fld_medicinaGeneral">Médico General</string>
     <string name="Txt_fld_odontologia">Dentista</string>
     <string name="Txt_fld_pediatria">Pediatra</string>
     <string name="Txt_fld_nutricionista">Nutricionista</string>
 
-    <!-- Cambios -->
     <string-array name="opciones_sexo">
         <item>Masculino</item>
         <item>Femenino</item>
         <item>Otro</item>
     </string-array>
-
     <string-array name="opciones_tipo_sangre">
         <item>O+</item>
         <item>O-</item>
@@ -86,5 +50,26 @@
         <item>AB-</item>
     </string-array>
 
+    <string name="inicio_cd_ritmo_cardiaco">Medir Ritmo Cardíaco</string>
+    <string name="inicio_saludo_usuario">¡Hola, usuario!</string>
+    <string name="inicio_cd_mi_perfil">Mi Perfil</string>
+    <string name="inicio_titulo_citas_pendientes">Tus Citas Pendientes</string>
+    <string name="inicio_card_agendar_cita">Agendar Cita</string>
+    <string name="inicio_card_ubicanos">Ubícanos</string>
+    <string name="inicio_card_especialidades">Especialidades</string>
+    <string name="inicio_card_recetas">Recetas Médicas</string>
+    <string name="inicio_card_mis_citas">Mis Citas</string>
+    <string name="inicio_card_cerrar_sesion">Cerrar Sesión</string>
+
+    <string name="inicio_no_citas_pendientes">¡Estás al día! No tienes citas pendientes.</string>
+    <string name="cd_retroceder">Retroceder</string>
+    <string name="especialidad_medicina_general">Medicina General</string>
+    <string name="especialidad_pediatria">Pediatría</string>
+    <string name="especialidad_cardiologia">Cardiología</string>
+    <string name="especialidad_dermatologia">Dermatología</string>
+    <string name="especialidad_ginecologia">Ginecología</string>
+    <string name="especialidad_odontologia">Odontología</string>
+    <string name="especialidad_psicologia">Psicología</string>
+    <string name="especialidad_nutricion">Nutrición</string>
 
 </resources>

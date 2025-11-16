@@ -23,7 +23,7 @@
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Medir Ritmo Cardíaco"
+            android:contentDescription="@string/inicio_cd_ritmo_cardiaco"
             android:src="@drawable/health_metrics_24px"
             app:tint="@color/blanco" />
         <LinearLayout
@@ -37,7 +37,7 @@
                 android:id="@+id/tituloInicio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Salud Móvil"
+                android:text="@string/Txt_tit_login"
                 android:textAppearance="?attr/textAppearanceHeadlineLarge"
                 android:textColor="@color/blanco"
                 android:textStyle="bold" />
@@ -47,7 +47,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="¡Hola, usuario!"
+                android:text="@string/inicio_saludo_usuario"
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textColor="@color/blanco_transparente_subtitulo" />
         </LinearLayout>
@@ -59,7 +59,7 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Mi Perfil"
+            android:contentDescription="@string/inicio_cd_mi_perfil"
             android:src="@drawable/ic_baseline_person_24"
             app:tint="@color/blanco" />
 
@@ -83,7 +83,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="Tus Citas Pendientes"
+                android:text="@string/inicio_titulo_citas_pendientes"
                 android:textAppearance="?attr/textAppearanceTitleLarge"
                 android:textColor="@color/texto_principal"
                 android:textStyle="bold"/>
@@ -169,7 +169,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="Agendar Cita"
+                            android:text="@string/inicio_card_agendar_cita"
                             android:textAlignment="center"
                             android:textAppearance="?attr/textAppearanceTitleSmall"
                             android:textColor="@color/texto_principal"
@@ -202,7 +202,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="Ubícanos"
+                            android:text="@string/inicio_card_ubicanos"
                             android:textAlignment="center"
                             android:textAppearance="?attr/textAppearanceTitleSmall"
                             android:textColor="@color/texto_principal"
@@ -235,7 +235,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="Especialidades"
+                            android:text="@string/inicio_card_especialidades"
                             android:textAlignment="center"
                             android:textAppearance="?attr/textAppearanceTitleSmall"
                             android:textColor="@color/texto_principal"
@@ -268,7 +268,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="Recetas Médicas"
+                            android:text="@string/inicio_card_recetas"
                             android:textAlignment="center"
                             android:textAppearance="?attr/textAppearanceTitleSmall"
                             android:textColor="@color/texto_principal"
@@ -301,7 +301,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="Mis Citas"
+                            android:text="@string/inicio_card_mis_citas"
                             android:textAlignment="center"
                             android:textAppearance="?attr/textAppearanceTitleSmall"
                             android:textColor="@color/texto_principal"
@@ -334,7 +334,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="Cerrar Sesión"
+                            android:text="@string/inicio_card_cerrar_sesion"
                             android:textAlignment="center"
                             android:textAppearance="?attr/textAppearanceTitleSmall"
                             android:textColor="@color/texto_principal"

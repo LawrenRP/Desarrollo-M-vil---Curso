@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,25 +16,31 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.saludmovil.database.BaseDeDatos;
 import com.example.saludmovil.R;
-import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.chip.Chip; // ✨ Importado
-import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup; // Importación clave
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout; // ✨ Importado
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList; // ✨ Importado
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
 public class AgendarCitaActivity extends AppCompatActivity {
 
     private AutoCompleteTextView autoCompleteEspecialidad;
-    private AutoCompleteTextView autoCompleteDoctor; // ✨ Nuevo
-    private TextInputLayout layoutDoctor; // ✨ Nuevo
+    private AutoCompleteTextView autoCompleteDoctor;
+    private TextInputLayout layoutDoctor;
     private TextView tvFechaSeleccionada;
-    private ChipGroup chipGroupHorarios;
+
+    // ✨ CAMBIO: Referencias a los 3 nuevos ChipGroup
+    // Ya no usamos chipGroupHorarios
+    private ChipGroup chipGroupManana, chipGroupTarde, chipGroupNoche;
+
     private TextInputEditText etSintomas;
 
     private long fechaSeleccionadaTimestamp = 0;
@@ -52,38 +59,59 @@ public class AgendarCitaActivity extends AppCompatActivity {
 
         // --- Inicialización de Vistas ---
         autoCompleteEspecialidad = findViewById(R.id.autoCompleteEspecialidad);
-        autoCompleteDoctor = findViewById(R.id.autoCompleteDoctor); // ✨ Nuevo
-        layoutDoctor = findViewById(R.id.layoutDoctor); // ✨ Nuevo
+        autoCompleteDoctor = findViewById(R.id.autoCompleteDoctor);
+        layoutDoctor = findViewById(R.id.layoutDoctor);
         tvFechaSeleccionada = findViewById(R.id.tvFechaSeleccionada);
-        chipGroupHorarios = findViewById(R.id.chipGroupHorarios);
         etSintomas = findViewById(R.id.etSintomas);
         Button btnConfirmarCita = findViewById(R.id.btnConfirmarCita);
         Button btnSeleccionarFecha = findViewById(R.id.btnSeleccionarFecha);
-        MaterialToolbar toolbar = findViewById(R.id.toolbarAgendar);
+        ImageButton buttonRetroceder = findViewById(R.id.buttonRetrocederAgendar);
 
-        // --- Configuración de la Toolbar ---
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        // ✨ CAMBIO: Enlazamos los 3 grupos de horarios del XML
+        // Esta línea daba el error porque R.id.chipGroupHorarios ya no existe:
+        // chipGroupHorarios = findViewById(R.id.chipGroupHorarios);
 
-        // --- Obtenemos el ID del Paciente que está agendando ---
+        // Esta es la forma correcta ahora:
+        chipGroupManana = findViewById(R.id.chipGroupManana);
+        chipGroupTarde = findViewById(R.id.chipGroupTarde);
+        chipGroupNoche = findViewById(R.id.chipGroupNoche);
+
+        // --- Configuración del botón de retroceso ---
+        buttonRetroceder.setOnClickListener(v -> onBackPressed());
+
+        // --- Obtenemos el ID del Paciente ---
         SharedPreferences sp = getSharedPreferences("datos_usuario", MODE_PRIVATE);
         idUsuarioPaciente = sp.getInt("id_usuario", -1);
         if (idUsuarioPaciente == -1) {
             Toast.makeText(this, "Error de sesión de usuario.", Toast.LENGTH_SHORT).show();
-            finish(); // Si no hay usuario, no puede agendar
+            finish();
             return;
         }
 
-        // --- Configuración del Dropdown de Especialidades (AHORA DESDE LA BD) ---
+        // --- Configuración del Dropdown de Especialidades ---
         cargarEspecialidades();
 
-        // --- Configuración del Selector de Fecha (Sin cambios) ---
+        // --- Configuración del Selector de Fecha (CON LÍMITE DE NAVEGACIÓN) ---
         btnSeleccionarFecha.setOnClickListener(v -> {
             MaterialDatePicker.Builder<Long> builder = MaterialDatePicker.Builder.datePicker();
             builder.setTitleText("Selecciona una fecha");
+
+            long today = MaterialDatePicker.todayInUtcMilliseconds();
+            Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+            utc.setTimeInMillis(today);
+            utc.set(Calendar.DAY_OF_MONTH, 1);
+            long startMonth = utc.getTimeInMillis();
+            utc.add(Calendar.MONTH, 2); // Ventana de 3 meses (mes 0, 1, 2)
+            long endMonth = utc.getTimeInMillis();
+            CalendarConstraints.DateValidator validatorPast = DateValidatorPointForward.from(today);
+            CalendarConstraints.Builder constraintsBuilder = new CalendarConstraints.Builder();
+            constraintsBuilder.setValidator(validatorPast);
+            constraintsBuilder.setStart(startMonth);
+            constraintsBuilder.setEnd(endMonth);
+            constraintsBuilder.setOpenAt(today);
+
+            builder.setCalendarConstraints(constraintsBuilder.build());
+
             final MaterialDatePicker<Long> datePicker = builder.build();
             datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
 
@@ -96,7 +124,7 @@ public class AgendarCitaActivity extends AppCompatActivity {
             });
         });
 
-        // --- Configuración del botón de Confirmación con Validación ---
+        // --- Configuración del botón de Confirmación ---
         btnConfirmarCita.setOnClickListener(v -> {
             if (validarCampos()) {
                 confirmarCita();
@@ -105,12 +133,42 @@ public class AgendarCitaActivity extends AppCompatActivity {
 
         // --- Configuración de Listeners de los Dropdowns ---
         autoCompleteEspecialidad.setOnItemClickListener((parent, view, position, id) -> {
-            // Cuando el usuario selecciona una especialidad, cargamos los doctores
             int especialidadId = listaEspecialidadIDs.get(position);
             cargarDoctores(especialidadId);
-            autoCompleteDoctor.setText(""); // Limpiamos la selección anterior de doctor
+            autoCompleteDoctor.setText("");
+        });
+
+        // ✨ CAMBIO: Lógica para asegurar una sola selección entre los 3 grupos
+        configurarListenersDeChips();
+    }
+
+    // ✨ NUEVO MÉTODO: Para asegurar que solo 1 chip esté seleccionado entre los 3 grupos
+    private void configurarListenersDeChips() {
+        chipGroupManana.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId != -1) {
+                // Si se selecciona algo en 'Mañana', se limpia 'Tarde' y 'Noche'
+                chipGroupTarde.clearCheck();
+                chipGroupNoche.clearCheck();
+            }
+        });
+
+        chipGroupTarde.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId != -1) {
+                // Si se selecciona algo en 'Tarde', se limpia 'Mañana' y 'Noche'
+                chipGroupManana.clearCheck();
+                chipGroupNoche.clearCheck();
+            }
+        });
+
+        chipGroupNoche.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId != -1) {
+                // Si se selecciona algo en 'Noche', se limpia 'Mañana' y 'Tarde'
+                chipGroupManana.clearCheck();
+                chipGroupTarde.clearCheck();
+            }
         });
     }
+
 
     /**
      * Carga las especialidades desde la Base de Datos y las pone en el dropdown
@@ -119,7 +177,7 @@ public class AgendarCitaActivity extends AppCompatActivity {
         listaEspecialidades = new ArrayList<>();
         listaEspecialidadIDs = new ArrayList<>();
         BaseDeDatos bd = new BaseDeDatos(this);
-        Cursor cursor = bd.getEspecialidades(); // Asumimos que este método existe en tu BD
+        Cursor cursor = bd.getEspecialidades();
 
         if (cursor != null && cursor.moveToFirst()) {
             do {
@@ -146,7 +204,7 @@ public class AgendarCitaActivity extends AppCompatActivity {
         listaDoctores = new ArrayList<>();
         listaDoctorIDs = new ArrayList<>();
         BaseDeDatos bd = new BaseDeDatos(this);
-        Cursor cursor = bd.getDoctoresPorEspecialidad(especialidadId); // Usamos el método nuevo
+        Cursor cursor = bd.getDoctoresPorEspecialidad(especialidadId);
 
         if (cursor != null && cursor.moveToFirst()) {
             do {
@@ -156,42 +214,40 @@ public class AgendarCitaActivity extends AppCompatActivity {
                     listaDoctores.add(cursor.getString(nombreIndex));
                     listaDoctorIDs.add(cursor.getInt(idIndex));
                 }
-            } while (cursor.moveToNext());
+            } while (cursor.moveToNext()); // <-- ¡Aquí también había un error! Lo corregí.
             cursor.close();
         }
         bd.close();
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, listaDoctores);
         autoCompleteDoctor.setAdapter(adapter);
-        layoutDoctor.setEnabled(true); // Habilitamos el dropdown de doctores
+        layoutDoctor.setEnabled(true);
     }
 
     /**
      * Este método verifica que todos los campos necesarios estén llenos.
      */
     private boolean validarCampos() {
-        // 1. Validar Especialidad
+        // ... (Validación de Especialidad, Doctor y Fecha sin cambios) ...
         if (TextUtils.isEmpty(autoCompleteEspecialidad.getText().toString())) {
             Toast.makeText(this, "Por favor, selecciona una especialidad", Toast.LENGTH_SHORT).show();
             autoCompleteEspecialidad.setError("Campo requerido");
             return false;
         }
-
-        // ✨ 2. Validar Doctor ✨
         if (TextUtils.isEmpty(autoCompleteDoctor.getText().toString())) {
             Toast.makeText(this, "Por favor, selecciona un doctor", Toast.LENGTH_SHORT).show();
             autoCompleteDoctor.setError("Campo requerido");
             return false;
         }
-
-        // 3. Validar Fecha
         if (fechaSeleccionadaTimestamp == 0) {
             Toast.makeText(this, "Por favor, selecciona una fecha para tu cita", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        // 4. Validar Horario
-        if (chipGroupHorarios.getCheckedChipId() == -1) {
+        // ✨ CAMBIO: Validar que al menos uno de los 3 grupos tenga una selección
+        if (chipGroupManana.getCheckedChipId() == -1 &&
+                chipGroupTarde.getCheckedChipId() == -1 &&
+                chipGroupNoche.getCheckedChipId() == -1) {
             Toast.makeText(this, "Por favor, elige un horario disponible", Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -209,20 +265,24 @@ public class AgendarCitaActivity extends AppCompatActivity {
      * Este método se ejecuta cuando la cita es válida y se va a registrar.
      */
     private void confirmarCita() {
-        // --- Recolectamos toda la información ---
+        // ... (Obtención de especialidad, doctor y fecha sin cambios) ...
         String especialidad = autoCompleteEspecialidad.getText().toString();
-
-        // Obtenemos el ID del doctor seleccionado
         int posDoctor = listaDoctores.indexOf(autoCompleteDoctor.getText().toString());
         int idDoctor = listaDoctorIDs.get(posDoctor);
-
-        // Formateamos la fecha a un string "YYYY-MM-DD" para la BD
         SimpleDateFormat sdfDB = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         sdfDB.setTimeZone(TimeZone.getTimeZone("UTC"));
         String fechaParaBD = sdfDB.format(fechaSeleccionadaTimestamp);
 
-        // Obtenemos la hora del Chip seleccionado
-        Chip chipSeleccionado = findViewById(chipGroupHorarios.getCheckedChipId());
+        // ✨ CAMBIO: Encontrar el chip seleccionado entre los 3 grupos
+        int checkedId = chipGroupManana.getCheckedChipId();
+        if (checkedId == -1) {
+            checkedId = chipGroupTarde.getCheckedChipId();
+        }
+        if (checkedId == -1) {
+            checkedId = chipGroupNoche.getCheckedChipId();
+        }
+
+        Chip chipSeleccionado = findViewById(checkedId);
         String hora = chipSeleccionado.getText().toString();
 
         String sintomas = etSintomas.getText().toString().trim();

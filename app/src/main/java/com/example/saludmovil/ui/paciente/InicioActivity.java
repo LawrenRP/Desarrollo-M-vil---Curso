@@ -231,13 +231,23 @@ public class InicioActivity extends AppCompatActivity {
             Intent intent = new Intent(InicioActivity.this, EspecialidadesActivity.class);
             startActivity(intent);
         });
+
         cardRecetasMedicas.setOnClickListener(v -> {
-            Toast.makeText(this, "Abriendo recetas médicas...", Toast.LENGTH_SHORT).show();
-        });
-        cardMisCitas.setOnClickListener(v -> {
-            Intent intent = new Intent(InicioActivity.this, MisCitasPacienteActivity.class);
+            Intent intent = new Intent(InicioActivity.this, RecetasActivity.class);
+            intent.putExtra("id_usuario", idUsuario);
             startActivity(intent);
         });
+
+        // ✨ --- ¡AQUÍ ESTÁ EL CAMBIO! --- ✨
+        cardMisCitas.setOnClickListener(v -> {
+            // Cambiamos el 'target' a la nueva activity que diseñamos
+            Intent intent = new Intent(InicioActivity.this, MisCitasActivity.class);
+            // Le pasamos el ID del usuario para que sepa de quién cargar las citas
+            intent.putExtra("id_usuario", idUsuario);
+            startActivity(intent);
+        });
+        // ✨ --- FIN DEL CAMBIO --- ✨
+
         cardSalir.setOnClickListener(v -> irALogin());
     }
 

@@ -3,10 +3,11 @@ package com.example.saludmovil.ui.doctor;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.widget.ImageButton; // Importante: Se cambió Toolbar por ImageButton
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+// import androidx.appcompat.widget.Toolbar; // Ya no se usa Toolbar
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.saludmovil.database.BaseDeDatos;
@@ -33,10 +34,22 @@ public class MisCitasDoctorActivity extends AppCompatActivity implements CitasDo
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mis_citas_doctor);
-        Toolbar toolbar = findViewById(R.id.toolbarMisCitas);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationOnClickListener(v -> finish()); // Botón de retroceso
+
+        // --- INICIO DE CAMBIOS ---
+        // El Toolbar ya no existe en el nuevo layout.
+        // Lo reemplazamos por el ImageButton 'buttonAtras'.
+
+        // Toolbar toolbar = findViewById(R.id.toolbarMisCitas); // BORRADO
+        // setSupportActionBar(toolbar); // BORRADO
+        // getSupportActionBar().setDisplayHomeAsUpEnabled(true); // BORRADO
+        // toolbar.setNavigationOnClickListener(v -> finish()); // BORRADO
+
+        // CÓDIGO NUEVO:
+        ImageButton btnAtras = findViewById(R.id.buttonAtras);
+        btnAtras.setOnClickListener(v -> finish()); // Configura el clic para cerrar la actividad
+        // --- FIN DE CAMBIOS ---
+
+
         SharedPreferences sp = getSharedPreferences("datos_usuario", MODE_PRIVATE);
         idUsuarioDoctor = sp.getInt("id_usuario", -1);
         if (idUsuarioDoctor == -1) {
@@ -66,6 +79,7 @@ public class MisCitasDoctorActivity extends AppCompatActivity implements CitasDo
         });
         cargarCitasDelDoctor();
     }
+
     private void cargarCitasDelDoctor() {
         listaDeCitas.clear();
         Cursor cursor = bd.getTodasCitasDoctor(idUsuarioDoctor);
@@ -99,7 +113,16 @@ public class MisCitasDoctorActivity extends AppCompatActivity implements CitasDo
         }
 
         adapter.setCitas(listaDeCitas);
-        adapter.filtrarPorEstado("Todos");
+        // Asegurarse de que el filtro inicial se aplique después de cargar los datos
+        List<Integer> checkedIds = chipGroupFiltroDoctor.getCheckedChipIds();
+        String filtroActual = "Todos";
+        if (!checkedIds.isEmpty()) {
+            Chip chipSeleccionado = findViewById(checkedIds.get(0));
+            if (chipSeleccionado != null) {
+                filtroActual = chipSeleccionado.getText().toString();
+            }
+        }
+        adapter.filtrarPorEstado(filtroActual);
     }
     @Override
     public void onCitaClick(Cita cita) {
@@ -148,7 +171,9 @@ public class MisCitasDoctorActivity extends AppCompatActivity implements CitasDo
         boolean exito = bd.actualizarEstadoCita(idCita, nuevoEstado);
         if (exito) {
             Toast.makeText(this, "Cita actualizada a: " + nuevoEstado, Toast.LENGTH_SHORT).show();
-            cargarCitasDelDoctor();
+            cargarCitasDelDoctor(); // Recarga los datos de la BD
+
+            // Vuelve a aplicar el filtro que estaba seleccionado
             List<Integer> checkedIds = chipGroupFiltroDoctor.getCheckedChipIds();
             String filtroActual = "Todos";
             if (!checkedIds.isEmpty()) {

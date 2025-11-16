@@ -17,6 +17,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SaludMovil">
         <activity
+            android:name=".ui.doctor.SeleccionarMedicamentoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.doctor.ConsultaPacienteActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.paciente.MisCitasActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.paciente.RecetaDetalleActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.paciente.RecetasActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.paciente.MisCitasPacienteActivity"
             android:exported="false" />
         <activity

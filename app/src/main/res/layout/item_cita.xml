@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  DISEÑO ADAPTADO:
-  - Se toma la estructura de 'item_cita_paciente.xml' (con divisor).
-  - Se usan los IDs de 'item_cita_doctor.xml' (tvNombrePacienteCita, tvMotivoCita).
--->
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cardCitaDoctor"
+    android:id="@+id/cardCita"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="8dp"
+
+    android:layout_marginHorizontal="1dp"
     android:layout_marginVertical="8dp"
+
     app:cardBackgroundColor="@color/blanco"
     app:cardCornerRadius="16dp"
     app:cardElevation="4dp"
-    app:strokeWidth="0dp"
+    app:strokeWidth="1dp"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground">
@@ -26,40 +24,42 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- 1. SECCIÓN SUPERIOR: Fecha y Estado -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <!-- ID del Layout 1 (tvFechaHoraCita) con estilo del Layout 2 -->
             <TextView
-                android:id="@+id/tvFechaHoraCita"
+                android:id="@+id/tvCitaFechaHora"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textColor="@color/texto_principal"
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textStyle="bold"
-                app:drawableStartCompat="@drawable/ic_baseline_calendar_today_24"
+                app:drawableStartCompat="@drawable/event_24px"
                 app:drawableTint="@color/azul_secundario"
                 android:drawablePadding="8dp"
-                tools:text="12 Nov, 2025 - 11:30 AM"/>
+                tools:text="Lun, 20 Oct - 10:30 AM"/>
 
-            <!-- ID del Layout 1 (chipEstadoCita) con estilo del Layout 2 -->
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipEstadoCita"
+            <TextView
+                android:id="@+id/tvCitaEstado"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                android:background="@drawable/fondo_estado_redondeado"
+                android:textAppearance="?attr/textAppearanceCaption"
                 android:textStyle="bold"
-                app:chipBackgroundColor="@color/azul_claro_fondo"
-                app:chipStrokeWidth="0dp"
-                tools:text="Agendada"/>
+                android:visibility="gone"
+                tools:visibility="visible"
+                tools:text="COMPLETADA"
+                tools:textColor="@color/estado_completada_texto"
+                tools:backgroundTint="@color/estado_completada_fondo"/>
 
         </LinearLayout>
 
-        <!-- 2. DIVISOR (Del Layout 2) -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -67,40 +67,60 @@
             android:layout_marginTop="12dp"
             android:layout_marginBottom="12dp"/>
 
-        <!-- 3. SECCIÓN INFERIOR: Paciente y Motivo -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- ID del Layout 1 (tvNombrePacienteCita) con estilo del Layout 2 -->
             <TextView
-                android:id="@+id/tvNombrePacienteCita"
+                android:id="@+id/tvCitaDoctor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/texto_principal"
                 android:textAppearance="?attr/textAppearanceBodyLarge"
                 android:textStyle="bold"
-                tools:text="Joaquin Murillo Sequeiros"/>
+                tools:text="Dr. Alberto García"/>
 
-            <!-- ID del Layout 1 (tvMotivoCita) con estilo del Layout 2 -->
             <TextView
-                android:id="@+id/tvMotivoCita"
+                android:id="@+id/tvCitaEspecialidad"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:textColor="@color/texto_secundario"
                 android:textAppearance="?attr/textAppearanceBodyMedium"
-                android:textStyle="italic"
-                tools:text="Me duele la barriga..."/>
+                tools:text="Cardiología"/>
 
         </LinearLayout>
 
-        <!--
-          NOTA: El Layout 2 tenía botones (layoutAccionesCita).
-          El Layout 1 no los tenía, así que no se incluyen para
-          mantener la funcionalidad del Java (que usa clic en todo el item).
-        -->
+        <LinearLayout
+            android:id="@+id/layoutAccionesCita"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:gravity="end"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancelarCita"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancelar Cita"
+                android:textColor="@color/colorRed" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReprogramarCita"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Reprogramar"
+                android:textColor="@color/azul_secundario" />
+
+        </LinearLayout>
 
     </LinearLayout>
+
 </com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gris_fondo_app"
+    android:orientation="vertical"
+    tools:context=".ui.paciente.MisCitasActivity">
+
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/azul_primario"
+        android:padding="24dp">
+
+        <ImageButton
+            android:id="@+id/buttonRetrocederMisCitas"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentStart="true"
+
+            android:layout_alignParentTop="true"
+
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cd_retroceder"
+            android:src="@drawable/ic_baseline_arrow_back_24"
+            app:tint="@color/blanco" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/tituloMisCitas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mis Citas"
+                android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                android:textColor="@color/blanco"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/subtituloMisCitas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Revisa tus citas próximas y pasadas"
+                android:textAlignment="center"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="@color/blanco_transparente_subtitulo"/>
+        </LinearLayout>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:layout_marginTop="-24dp"
+        android:background="@drawable/rounded_white_background"
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        android:paddingHorizontal="16dp">
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleGroupCitas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            app:checkedButton="@id/btnCitasProximas">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCitasProximas"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Próximas"
+                android:backgroundTint="@color/selector_color_toggle_button"
+                android:textColor="@color/selector_texto_toggle_button"
+                style="?attr/materialButtonOutlinedStyle"/>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCitasPasadas"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Pasadas"
+                android:backgroundTint="@color/selector_color_toggle_button"
+                android:textColor="@color/selector_texto_toggle_button"
+                style="?attr/materialButtonOutlinedStyle"/>
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPagerMisCitas"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            tools:visibility="gone" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            tools:visibility="visible"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:itemCount="2"
+            tools:layout_marginTop="8dp"
+            tools:listitem="@layout/item_cita" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/gris_fondo_app"
-    tools:context=".ui.doctor.MisCitasDoctorActivity">
+    tools:context=".ui.doctor.SeleccionarMedicamentoActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -20,9 +20,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_alignParentStart="true"
-
             android:layout_alignParentTop="true"
-
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Atrás"
             android:src="@drawable/ic_baseline_arrow_back_24"
@@ -36,24 +34,23 @@
             android:orientation="vertical">
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tituloMisCitas"
+                android:id="@+id/tituloSeleccionar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Mis Citas"
+                android:text="Seleccionar Medicamentos"
                 android:textAppearance="?attr/textAppearanceHeadlineLarge"
                 android:textColor="@color/blanco"
                 android:textStyle="bold" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/subtituloMisCitas"
+                android:id="@+id/subtituloSeleccionar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Revisa tu historial"
+                android:text="Marca los items para la receta"
                 android:textAppearance="?attr/textAppearanceTitleMedium"
-                android:textColor="@color/blanco_transparente_subtitulo" />
+                android:textColor="@color/blanco_transparente_subtitulo"/>
         </LinearLayout>
-
     </RelativeLayout>
 
     <LinearLayout
@@ -65,59 +62,31 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <HorizontalScrollView
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/searchViewMedicamentos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="none"
-            android:paddingHorizontal="8dp"
-            android:paddingBottom="8dp">
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupFiltroDoctor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:singleSelection="true">
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipFiltroTodos"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Todos"
-                    android:checked="true" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipFiltroAgendada"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Agendada" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipFiltroCompletada"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Completada" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipFiltroCancelada"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Cancelada" />
-
-            </com.google.android.material.chip.ChipGroup>
-        </HorizontalScrollView>
+            android:layout_marginHorizontal="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/rounded_search_background"
+            app:queryHint="Buscar medicamento..."
+            app:iconifiedByDefault="false"/>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewCitasDoctor"
+            android:id="@+id/rvListaMedicamentos"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:layout_marginTop="8dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/item_cita_doctor" />
+            tools:listitem="@layout/item_medicamento_seleccionable"/>
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfirmarSeleccion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Confirmar Selección"
+            android:paddingVertical="12dp"/>
     </LinearLayout>
-
 </LinearLayout>

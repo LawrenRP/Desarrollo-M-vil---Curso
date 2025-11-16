@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardReceta"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="8dp"
+
+    app:cardBackgroundColor="@color/blanco"
+
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp"  app:strokeWidth="0dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/prescriptions_24px"
+            app:tint="@color/azul_secundario"
+            android:contentDescription="Icono de receta"/>
+
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="16dp">
+
+            <TextView
+                android:id="@+id/tvFechaReceta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/texto_principal"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textStyle="bold"
+                tools:text="Lun, 20 Oct 2024"/>
+
+            <TextView
+                android:id="@+id/tvDoctorReceta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/texto_secundario"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                tools:text="Dr. Alberto García"/>
+
+            <TextView
+                android:id="@+id/tvEspecialidadReceta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/texto_secundario"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                tools:text="Cardiología"/>
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/chevron_right_24px"
+            app:tint="@color/texto_secundario"
+            android:contentDescription="Ver detalle"/>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

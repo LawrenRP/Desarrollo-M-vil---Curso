@@ -14,7 +14,7 @@ import java.util.Locale;
 public class BaseDeDatos extends SQLiteOpenHelper {
 
     private static final String NOMBRE_BD = "SaludMovil.db";
-    private static final int VERSION_BD = 3;
+    private static final int VERSION_BD = 4;
 
     // --- Definición de las Tablas ---
     private static final String CREAR_TABLA_USUARIOS = "CREATE TABLE usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, correo TEXT UNIQUE NOT NULL, contrasena TEXT NOT NULL, rol TEXT NOT NULL CHECK(rol IN ('paciente', 'doctor')))";
