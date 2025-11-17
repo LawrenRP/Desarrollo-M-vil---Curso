@@ -14,6 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="180dp"
         android:background="@color/azul_primario">
+
         <ImageButton
             android:id="@+id/buttonRetrocederDetalle"
             android:layout_width="48dp"
@@ -26,12 +27,14 @@
             android:contentDescription="@string/cd_retroceder"
             android:src="@drawable/ic_baseline_arrow_back_24"
             app:tint="@color/blanco" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="vertical"
             android:padding="24dp">
+
             <TextView
                 android:id="@+id/tituloDetalle"
                 android:layout_width="wrap_content"
@@ -40,6 +43,7 @@
                 android:textAppearance="?attr/textAppearanceHeadlineMedium"
                 android:textColor="@color/blanco"
                 android:textStyle="bold" />
+
             <TextView
                 android:id="@+id/tvFolioReceta"
                 android:layout_width="wrap_content"
@@ -49,7 +53,8 @@
                 android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:textColor="@color/blanco_transparente_subtitulo"
                 android:textStyle="bold"
-                tools:text="Folio N°: 44580011"/>
+                tools:text="Folio N°: 44580011" />
+
             <TextView
                 android:id="@+id/tvFechaEmision"
                 android:layout_width="wrap_content"
@@ -58,15 +63,15 @@
                 android:textAlignment="center"
                 android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:textColor="@color/blanco_transparente_subtitulo"
-                tools:text="Emitida el: Lun, 20 Oct 2024"/>
+                tools:text="Emitida el: Lun, 20 Oct 2024" />
         </LinearLayout>
     </RelativeLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
         android:layout_marginTop="-24dp"
+        android:layout_weight="1"
         android:background="@drawable/rounded_white_background">
 
         <LinearLayout
@@ -83,19 +88,22 @@
                 android:text="Paciente"
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textColor="@color/texto_principal"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 app:cardBackgroundColor="@color/blanco"
-                app:cardElevation="2dp"
-                app:cardCornerRadius="16dp">
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp">
+
                     <TextView
                         android:id="@+id/tvNombrePaciente"
                         android:layout_width="wrap_content"
@@ -103,7 +111,8 @@
                         android:textAppearance="?attr/textAppearanceBodyLarge"
                         android:textColor="@color/texto_principal"
                         android:textStyle="bold"
-                        tools:text="José Antonio Jimenez Hernandez"/>
+                        tools:text="José Antonio Jimenez Hernandez" />
+
                     <TextView
                         android:id="@+id/tvDniPaciente"
                         android:layout_width="wrap_content"
@@ -111,7 +120,7 @@
                         android:layout_marginTop="4dp"
                         android:textAppearance="?attr/textAppearanceBodyMedium"
                         android:textColor="@color/texto_secundario"
-                        tools:text="DNI/Asegurado: 0482 9642 265"/>
+                        tools:text="DNI/Asegurado: 0482 9642 265" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -122,19 +131,22 @@
                 android:text="Emitido por"
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textColor="@color/texto_principal"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 app:cardBackgroundColor="@color/blanco"
-                app:cardElevation="2dp"
-                app:cardCornerRadius="16dp">
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp">
+
                     <TextView
                         android:id="@+id/tvDoctorDetalle"
                         android:layout_width="wrap_content"
@@ -142,7 +154,8 @@
                         android:textAppearance="?attr/textAppearanceBodyLarge"
                         android:textColor="@color/texto_principal"
                         android:textStyle="bold"
-                        tools:text="Dra. Ana Laura Cervantes"/>
+                        tools:text="Dra. Ana Laura Cervantes" />
+
                     <TextView
                         android:id="@+id/tvEspecialidadDetalle"
                         android:layout_width="wrap_content"
@@ -150,31 +163,34 @@
                         android:layout_marginTop="4dp"
                         android:textAppearance="?attr/textAppearanceBodyMedium"
                         android:textColor="@color/texto_secundario"
-                        tools:text="Medicina General"/>
+                        tools:text="Medicina General" />
+
                     <TextView
                         android:id="@+id/tvCmpDoctor"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?attr/textAppearanceBodyMedium"
                         android:textColor="@color/texto_secundario"
-                        tools:text="CMP: 12345"/>
+                        tools:text="CMP: 12345" />
+
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="@color/gris_fondo_app"
                         android:layout_marginTop="12dp"
-                        android:layout_marginBottom="8dp"/>
+                        android:layout_marginBottom="8dp"
+                        android:background="@color/gris_fondo_app" />
+
                     <TextView
                         android:id="@+id/tvCentroSalud"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:drawablePadding="8dp"
+                        android:gravity="center_vertical"
                         android:textAppearance="?attr/textAppearanceBodyMedium"
                         android:textColor="@color/texto_secundario"
                         app:drawableStartCompat="@drawable/ic_baseline_location_on_24"
                         app:drawableTint="@color/texto_secundario"
-                        android:drawablePadding="8dp"
-                        android:gravity="center_vertical"
-                        tools:text="Instituto Mexicano del Seguro Social"/>
+                        tools:text="Instituto Mexicano del Seguro Social" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -185,14 +201,16 @@
                 android:text="Diagnóstico (Dx)"
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textColor="@color/texto_principal"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 app:cardBackgroundColor="@color/blanco"
-                app:cardElevation="2dp"
-                app:cardCornerRadius="16dp">
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
                 <TextView
                     android:id="@+id/tvDiagnostico"
                     android:layout_width="match_parent"
@@ -200,7 +218,7 @@
                     android:padding="16dp"
                     android:textAppearance="?attr/textAppearanceBodyMedium"
                     android:textColor="@color/texto_secundario"
-                    tools:text="Hipertensión arterial (I10)\nPaciente en seguimiento."/>
+                    tools:text="Hipertensión arterial (I10)\nPaciente en seguimiento." />
             </com.google.android.material.card.MaterialCardView>
 
             <TextView
@@ -210,63 +228,17 @@
                 android:text="Receta (Rp/)"
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textColor="@color/texto_principal"
-                android:textStyle="bold"/>
-            <LinearLayout
-                android:id="@+id/layoutListaMedicamentos"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvDetalleMedicamentos"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    app:cardBackgroundColor="@color/blanco"
-                    app:cardElevation="2dp"  app:cardCornerRadius="16dp"> <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="?attr/textAppearanceTitleSmall"
-                        android:textColor="@color/texto_principal"
-                        android:textStyle="bold"
-                        tools:text="1. Furosemide grageas (Ciento ochenta)"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:textColor="@color/texto_secundario"
-                        tools:text="Indicaciones: 2 grageas cada ocho horas por 2 semanas."/>
-                </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    app:cardBackgroundColor="@color/blanco"
-                    app:cardElevation="2dp"  app:cardCornerRadius="16dp"> <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="?attr/textAppearanceTitleSmall"
-                        android:textColor="@color/texto_principal"
-                        android:textStyle="bold"
-                        tools:text="2. Pentroxilina grageas (Noventa)"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:textColor="@color/texto_secundario"
-                        tools:text="Indicaciones: 1 gragea diaria por dos semanas."/>
-                </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="2"
+                tools:listitem="@layout/item_medicamento_recetado" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -275,14 +247,16 @@
                 android:text="Indicaciones Adicionales"
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textColor="@color/texto_principal"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 app:cardBackgroundColor="@color/blanco"
-                app:cardElevation="2dp"
-                app:cardCornerRadius="16dp">
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
                 <TextView
                     android:id="@+id/tvComentariosDoctor"
                     android:layout_width="match_parent"
@@ -290,7 +264,7 @@
                     android:padding="16dp"
                     android:textAppearance="?attr/textAppearanceBodyMedium"
                     android:textColor="@color/texto_secundario"
-                    tools:text="Paciente debe reducir el consumo de sal. Medir presión arterial dos veces al día (mañana y noche) y registrarla. Volver en 2 semanas para control."/>
+                    tools:text="Paciente debe reducir el consumo de sal. Medir presión arterial dos veces al día (mañana y noche) y registrarla. Volver en 2 semanas para control." />
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.button.MaterialButton
@@ -302,9 +276,7 @@
                 android:textSize="16sp"
                 app:cornerRadius="16dp"
                 app:icon="@drawable/download_24px"
-                app:iconGravity="textStart"/>
-
+                app:iconGravity="textStart" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
 </LinearLayout>

@@ -2,23 +2,27 @@ package com.example.saludmovil.ui.paciente;
 
 import android.database.Cursor;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.saludmovil.R;
+import com.example.saludmovil.adapters.MedicamentoLecturaAdapter;
+import com.example.saludmovil.data.MedicamentoRecetado;
 import com.example.saludmovil.database.BaseDeDatos;
+
+import java.util.ArrayList;
 
 public class RecetaDetalleActivity extends AppCompatActivity {
 
     private BaseDeDatos bd;
     private int idReceta;
+
     private TextView tvFolio, tvFecha, tvPaciente, tvDni, tvDoctor, tvEspecialidad, tvCmp, tvDiagnostico;
-    private LinearLayout layoutListaMedicamentos;
+    private RecyclerView rvDetalleMedicamentos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +50,8 @@ public class RecetaDetalleActivity extends AppCompatActivity {
         tvEspecialidad = findViewById(R.id.tvEspecialidadDetalle);
         tvCmp = findViewById(R.id.tvCmpDoctor);
         tvDiagnostico = findViewById(R.id.tvDiagnostico);
-        layoutListaMedicamentos = findViewById(R.id.layoutListaMedicamentos);
+        rvDetalleMedicamentos = findViewById(R.id.rvDetalleMedicamentos);
+        rvDetalleMedicamentos.setLayoutManager(new LinearLayoutManager(this));
 
         findViewById(R.id.buttonRetrocederDetalle).setOnClickListener(v -> finish());
     }
@@ -71,8 +76,8 @@ public class RecetaDetalleActivity extends AppCompatActivity {
     }
 
     private void cargarMedicamentos() {
+        ArrayList<MedicamentoRecetado> lista = new ArrayList<>();
         Cursor c = bd.getMedicamentosDeReceta(idReceta);
-        LayoutInflater inflater = LayoutInflater.from(this);
 
         if (c != null && c.moveToFirst()) {
             do {
@@ -80,21 +85,12 @@ public class RecetaDetalleActivity extends AppCompatActivity {
                 String presentacion = c.getString(c.getColumnIndexOrThrow("presentacion"));
                 String cantidad = c.getString(c.getColumnIndexOrThrow("cantidad"));
                 String indicaciones = c.getString(c.getColumnIndexOrThrow("indicaciones"));
-
-                View cardView = inflater.inflate(R.layout.item_medicamento_recetado, layoutListaMedicamentos, false);
-                TextView tvNombre = cardView.findViewById(R.id.tvNombreMedicamentoRecetado);
-                TextView tvCant = cardView.findViewById(R.id.tvCantidadRecetada);
-                TextView tvInd = cardView.findViewById(R.id.tvIndicacionesRecetadas);
-                ImageButton btnEliminar = cardView.findViewById(R.id.btnEliminarMedicamento);
-
-                tvNombre.setText(nombre + " " + presentacion);
-                tvCant.setText(cantidad);
-                tvInd.setText("Indicaciones: " + indicaciones);
-                btnEliminar.setVisibility(View.GONE);
-                layoutListaMedicamentos.addView(cardView);
+                lista.add(new MedicamentoRecetado(0, nombre + " " + presentacion, cantidad, indicaciones));
 
             } while (c.moveToNext());
             c.close();
         }
+        MedicamentoLecturaAdapter adapter = new MedicamentoLecturaAdapter(this, lista);
+        rvDetalleMedicamentos.setAdapter(adapter);
     }
 }
