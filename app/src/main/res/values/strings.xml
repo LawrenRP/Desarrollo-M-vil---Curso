@@ -92,4 +92,11 @@
     <string name="expediente_btn_receta">Crear Receta</string>
     <string name="expediente_historial_titulo">Historial de Citas</string>
     <string name="expediente_sexo">Sexo: %1$s</string>
+
+    <string name="receta_folio_format">Folio N°: %1$d</string>
+    <string name="receta_emitida_el_format">Emitida el: %1$s</string>
+    <string name="receta_nombre_paciente_format">%1$s %2$s</string>
+    <string name="receta_dni_format">DNI: %1$s</string>
+    <string name="receta_doctor_format">Dr. %1$s</string>
+    <string name="receta_cmp_format">CMP: %1$s</string>
 </resources>
