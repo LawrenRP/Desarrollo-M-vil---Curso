@@ -35,7 +35,7 @@ public class ConsultaPacienteActivity extends AppCompatActivity implements Medic
     private TextView tvCodigoConsulta, tvFechaHora, tvMotivoConsulta;
     private TextInputEditText etDiagnostico;
     private RecyclerView rvMedicamentos;
-    private Button btnRecetar, btnCompletar, btnCancelar;
+    private Button btnRecetar, btnCompletar;
 
     private BaseDeDatos bd;
     private int idCita;
@@ -100,7 +100,6 @@ public class ConsultaPacienteActivity extends AppCompatActivity implements Medic
 
         btnRecetar = findViewById(R.id.btnRecetarMedicamentos);
         btnCompletar = findViewById(R.id.btnCompletarConsulta);
-        btnCancelar = findViewById(R.id.btnCancelarConsulta);
 
         findViewById(R.id.buttonAtras).setOnClickListener(v -> finish());
     }
@@ -158,15 +157,6 @@ public class ConsultaPacienteActivity extends AppCompatActivity implements Medic
         btnRecetar.setOnClickListener(v -> {
             Intent intent = new Intent(this, SeleccionarMedicamentoActivity.class);
             selectorMedicamentosLauncher.launch(intent);
-        });
-
-        btnCancelar.setOnClickListener(v -> {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("Cancelar Consulta")
-                    .setMessage("¿Seguro que deseas cancelar? Se perderán los datos ingresados.")
-                    .setPositiveButton("Sí, Cancelar", (dialog, which) -> finish())
-                    .setNegativeButton("No", null)
-                    .show();
         });
 
         btnCompletar.setOnClickListener(v -> guardarConsulta());

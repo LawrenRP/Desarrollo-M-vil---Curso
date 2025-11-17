@@ -285,15 +285,6 @@
                 android:text="Marcar como Completada"
                 android:paddingVertical="12dp"/>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCancelarConsulta"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Marcar como Cancelada"
-                android:textColor="@color/estado_cancelada_texto" />
-
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

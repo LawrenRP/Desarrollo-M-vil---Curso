@@ -508,4 +508,40 @@ public class BaseDeDatos extends SQLiteOpenHelper {
         return db.rawQuery(query, new String[]{String.valueOf(idCita)});
     }
 
+    public Cursor getRecetasDelPaciente(int idPaciente) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT r.id, r.fecha_emision, d.nombre_completo, e.nombre as especialidad " +
+                "FROM recetas_medicas r " +
+                "JOIN citas c ON r.id_cita = c.id " +
+                "JOIN doctores d ON c.id_doctor = d.id_usuario " +
+                "JOIN especialidades e ON d.id_especialidad = e.id " +
+                "WHERE c.id_paciente = ? " +
+                "ORDER BY r.fecha_emision DESC";
+        return db.rawQuery(query, new String[]{String.valueOf(idPaciente)});
+    }
+
+    public Cursor getCabeceraReceta(int idReceta) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT r.id, r.fecha_emision, d.nombre_completo, d.numero_colegiatura, " +
+                "e.nombre as especialidad, p.nombre as pac_nombre, p.apellido as pac_apellido, " +
+                "p.dni as pac_dni, h.diagnostico " +
+                "FROM recetas_medicas r " +
+                "JOIN citas c ON r.id_cita = c.id " +
+                "JOIN doctores d ON c.id_doctor = d.id_usuario " +
+                "JOIN especialidades e ON d.id_especialidad = e.id " +
+                "JOIN pacientes p ON c.id_paciente = p.id_usuario " +
+                "JOIN historial_clinico h ON h.id_cita = c.id " +
+                "WHERE r.id = ?";
+        return db.rawQuery(query, new String[]{String.valueOf(idReceta)});
+    }
+
+    public Cursor getMedicamentosDeReceta(int idReceta) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT m.nombre, m.presentacion, rd.cantidad, rd.indicaciones " +
+                "FROM receta_detalle rd " +
+                "JOIN medicamentos m ON rd.id_medicamento = m.id " +
+                "WHERE rd.id_receta = ?";
+        return db.rawQuery(query, new String[]{String.valueOf(idReceta)});
+    }
+
 }
