@@ -30,13 +30,10 @@ import java.util.Locale;
 
 public class RegistrarDoctorPaso1Activity extends AppCompatActivity {
 
-    // Vistas de UI
     TextInputEditText edNombre, edDNI, edFechaNacimiento, edTelefono, edCorreo, edClave, edConfirmarClave;
     Button btnSiguiente;
     MaterialButton btnVerificarDNI;
     MaterialToolbar toolbar;
-
-    // Layouts para habilitar/deshabilitar
     TextInputLayout layoutNombre, layoutFecha, layoutTelefono, layoutCorreo, layoutClave, layoutConfirmar;
 
     private RequestQueue colaPeticiones;
@@ -73,7 +70,6 @@ public class RegistrarDoctorPaso1Activity extends AppCompatActivity {
         btnSiguiente = findViewById(R.id.buttonRegDocSiguiente);
         btnVerificarDNI = findViewById(R.id.buttonVerificarDNIDoctor);
 
-        // Asegúrate de que los IDs de tus TextInputLayouts coincidan con estos
         layoutNombre = findViewById(R.id.textInputLayoutRegDocNombre);
         layoutFecha = findViewById(R.id.textInputLayoutRegDocFecha);
         layoutTelefono = findViewById(R.id.textInputLayoutRegDocTelefono);
@@ -187,7 +183,6 @@ public class RegistrarDoctorPaso1Activity extends AppCompatActivity {
                 },
                 error -> {
                     Toast.makeText(this, "DNI no encontrado. Ingrese sus datos manualmente.", Toast.LENGTH_LONG).show();
-                    // Habilitamos el formulario para ingreso manual si el DNI no se encuentra
                     layoutNombre.setEnabled(true);
                     habilitarFormularioPostVerificacion();
                 }
@@ -202,8 +197,6 @@ public class RegistrarDoctorPaso1Activity extends AppCompatActivity {
         };
         colaPeticiones.add(request);
     }
-
-    // --- El resto de los métodos auxiliares ---
 
     private void mostrarCalendario() {
         final Calendar c = Calendar.getInstance();

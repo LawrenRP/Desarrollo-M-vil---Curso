@@ -1,5 +1,6 @@
 package com.example.saludmovil.ui.doctor;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -37,7 +38,6 @@ public class MisCitasDoctorActivity extends AppCompatActivity implements CitasDo
         ImageButton btnAtras = findViewById(R.id.buttonAtras);
         btnAtras.setOnClickListener(v -> finish());
 
-
         SharedPreferences sp = getSharedPreferences("datos_usuario", MODE_PRIVATE);
         idUsuarioDoctor = sp.getInt("id_usuario", -1);
         if (idUsuarioDoctor == -1) {
@@ -73,6 +73,7 @@ public class MisCitasDoctorActivity extends AppCompatActivity implements CitasDo
         Cursor cursor = bd.getTodasCitasDoctor(idUsuarioDoctor);
 
         if (cursor != null && cursor.moveToFirst()) {
+            int idPacienteIndex = cursor.getColumnIndex("id_paciente");
             int idCitaIndex = cursor.getColumnIndex("id");
             int fechaIndex = cursor.getColumnIndex("fecha");
             int horaIndex = cursor.getColumnIndex("hora");
@@ -82,17 +83,17 @@ public class MisCitasDoctorActivity extends AppCompatActivity implements CitasDo
             int apellidoIndex = cursor.getColumnIndex("apellido");
 
             do {
-                if (idCitaIndex != -1 && fechaIndex != -1 && horaIndex != -1 && estadoIndex != -1 &&
+                if (idCitaIndex != -1 && idPacienteIndex != -1 && fechaIndex != -1 && horaIndex != -1 && estadoIndex != -1 &&
                         motivoIndex != -1 && nombreIndex != -1 && apellidoIndex != -1) {
-
                     int idCita = cursor.getInt(idCitaIndex);
+                    int idPaciente = cursor.getInt(idPacienteIndex);
                     String fecha = cursor.getString(fechaIndex);
                     String hora = cursor.getString(horaIndex);
                     String estado = cursor.getString(estadoIndex);
                     String motivo = cursor.getString(motivoIndex);
                     String nombrePaciente = cursor.getString(nombreIndex) + " " + cursor.getString(apellidoIndex);
 
-                    listaDeCitas.add(new Cita(idCita, fecha, hora, estado, motivo, nombrePaciente));
+                    listaDeCitas.add(new Cita(idCita, idPaciente, fecha, hora, estado, motivo, nombrePaciente));
                 }
             } while (cursor.moveToNext());
             cursor.close();
@@ -109,14 +110,18 @@ public class MisCitasDoctorActivity extends AppCompatActivity implements CitasDo
         }
         adapter.filtrarPorEstado(filtroActual);
     }
+
     @Override
     public void onCitaClick(Cita cita) {
         if (cita.getEstado().equalsIgnoreCase("agendada")) {
             new MaterialAlertDialogBuilder(this)
                     .setTitle("Gestionar Cita")
                     .setMessage("Paciente: " + cita.getNombrePaciente() + "\nFecha: " + cita.getFecha() + " - " + cita.getHora())
-                    .setPositiveButton("Completada", (dialog, which) -> {
-                        mostrarDialogoConfirmacion(cita.getIdCita(), "Completada");
+                    .setPositiveButton("Atender Cita", (dialog, which) -> {
+                        Intent intent = new Intent(MisCitasDoctorActivity.this, ConsultaPacienteActivity.class);
+                        intent.putExtra("id_cita", cita.getIdCita());
+                        intent.putExtra("id_paciente", cita.getIdPaciente());
+                        startActivity(intent);
                     })
                     .setNegativeButton("Cancelar Cita", (dialog, which) -> {
                         mostrarDialogoConfirmacion(cita.getIdCita(), "Cancelada");

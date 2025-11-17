@@ -24,7 +24,7 @@ public class CitasPacienteAdapter extends ListAdapter<CitaParaPaciente, CitasPac
     }
 
     public CitasPacienteAdapter(Context context, OnCitaClickListener listener) {
-        super(CITA_COMPARATOR); // Le pasamos el comparador
+        super(CITA_COMPARATOR);
         this.context = context;
         this.listener = listener;
     }

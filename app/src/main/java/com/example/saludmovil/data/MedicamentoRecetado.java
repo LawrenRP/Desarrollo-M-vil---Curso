@@ -15,8 +15,6 @@ public class MedicamentoRecetado implements Serializable {
         this.cantidad = cantidad;
         this.indicaciones = indicaciones;
     }
-
-    // Getters
     public int getIdMedicamento() { return idMedicamento; }
     public String getNombre() { return nombre; }
     public String getCantidad() { return cantidad; }

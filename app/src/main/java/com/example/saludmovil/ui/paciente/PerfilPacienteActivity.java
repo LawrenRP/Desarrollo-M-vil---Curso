@@ -19,8 +19,6 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
 
 public class PerfilPacienteActivity extends AppCompatActivity {
-
-    // CAMBIO: Declaramos los componentes correctos del nuevo diseño
     TextInputEditText edEstatura, edPeso, edAlergias, edEnfermedades, edMedicamentos, edContactoNombre, edContactoTelefono;
     AutoCompleteTextView autoCompleteSexo, autoCompleteSangre;
     Button btnGuardar;
@@ -54,7 +52,6 @@ public class PerfilPacienteActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbarPerfil);
         edEstatura = findViewById(R.id.editTextPerfilEstatura);
         edPeso = findViewById(R.id.editTextPerfilPeso);
-        // CAMBIO: Usamos los nuevos IDs y variables
         autoCompleteSangre = findViewById(R.id.autoCompletePerfilSangre);
         autoCompleteSexo = findViewById(R.id.autoCompletePerfilSexo);
         edAlergias = findViewById(R.id.editTextPerfilAlergias);
@@ -136,13 +133,11 @@ public class PerfilPacienteActivity extends AppCompatActivity {
             setTextFromCursor(edEnfermedades, cursor, "enfermedades_cronicas");
             setTextFromCursor(edMedicamentos, cursor, "medicamentos_actuales");
             setTextFromCursor(edContactoNombre, cursor, "nombre_contacto_emergencia");
-            setTextFromCursor(edContactoTelefono, cursor, "telefono_contacto_emergencia");
+            setTextFromCursor(edContactoTelefono, cursor, "celular_contacto_emergencia");
             cursor.close();
             hayCambiosSinGuardar = false;
         }
     }
-
-    // Métodos auxiliares para limpiar el código
     private void setTextFromCursor(TextInputEditText editText, Cursor cursor, String columnName) {
         int columnIndex = cursor.getColumnIndex(columnName);
         if (columnIndex != -1 && !cursor.isNull(columnIndex)) {
@@ -153,7 +148,7 @@ public class PerfilPacienteActivity extends AppCompatActivity {
     private void setTextFromCursor(AutoCompleteTextView editText, Cursor cursor, String columnName) {
         int columnIndex = cursor.getColumnIndex(columnName);
         if (columnIndex != -1 && !cursor.isNull(columnIndex)) {
-            editText.setText(cursor.getString(columnIndex), false); // el 'false' evita que se muestre el dropdown al cargar
+            editText.setText(cursor.getString(columnIndex), false);
         }
     }
 

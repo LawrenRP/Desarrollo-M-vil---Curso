@@ -20,8 +20,6 @@ public class PacienteBusquedaAdapter extends ListAdapter<Paciente, PacienteBusqu
     public interface OnPacienteClickListener {
         void onPacienteClick(Paciente paciente);
     }
-
-    // Constructor
     public PacienteBusquedaAdapter(OnPacienteClickListener listener) {
         super(PACIENTE_COMPARATOR);
         this.listener = listener;

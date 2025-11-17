@@ -17,7 +17,7 @@ import com.google.android.material.textfield.TextInputEditText;
 
 public class LoginActivity extends AppCompatActivity {
 
-    TextInputEditText edDni, edClave; // Esto ya lo habías cambiado, ¡perfecto!
+    TextInputEditText edDni, edClave;
     MaterialButton btnLogin, btnNuevoUsuario;
 
     @Override
@@ -33,12 +33,11 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // 1. Renombramos la variable local para mayor claridad
                 String dni = edDni.getText().toString().trim();
                 String clave = edClave.getText().toString().trim();
                 BaseDeDatos bd = new BaseDeDatos(getApplicationContext());
 
-                if (dni.isEmpty() || clave.isEmpty()) { // Usamos isEmpty() que es un poco más estándar
+                if (dni.isEmpty() || clave.isEmpty()) {
                     Toast.makeText(getApplicationContext(), "Por favor, llene todos los campos", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -72,7 +71,6 @@ public class LoginActivity extends AppCompatActivity {
                     if(cursor != null) {
                         cursor.close();
                     }
-                    // 3. Actualizamos el mensaje de error
                     Toast.makeText(getApplicationContext(), "DNI o contraseña incorrectos", Toast.LENGTH_SHORT).show();
                 }
             }

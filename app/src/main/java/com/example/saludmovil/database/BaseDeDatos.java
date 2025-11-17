@@ -367,13 +367,14 @@ public class BaseDeDatos extends SQLiteOpenHelper {
         return db.rawQuery(query, new String[]{String.valueOf(idDoctor), hoy});
     }
 
-    public Cursor getTodasCitasDoctor(int idDoctor){
+    public Cursor getTodasCitasDoctor(int idDoctor) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT c.id, c.fecha, c.hora, c.estado, c.motivo, p.nombre, p.apellido " +
+        String query = "SELECT c.id, c.id_paciente, c.fecha, c.hora, c.estado, c.motivo, p.nombre, p.apellido " +
                 "FROM citas c " +
                 "JOIN pacientes p ON c.id_paciente = p.id_usuario " +
                 "WHERE c.id_doctor = ? " +
                 "ORDER BY c.fecha DESC, c.hora DESC";
+
         return db.rawQuery(query, new String[]{String.valueOf(idDoctor)});
     }
 
@@ -468,6 +469,43 @@ public class BaseDeDatos extends SQLiteOpenHelper {
                 "ORDER BY fecha DESC, hora DESC";
 
         return db.rawQuery(query, new String[]{String.valueOf(idDoctor), String.valueOf(idPaciente)});
+    }
+
+    public Cursor buscarMedicamentos(String busqueda) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM medicamentos WHERE nombre LIKE ?";
+        return db.rawQuery(query, new String[]{"%" + busqueda + "%"});
+    }
+
+    public long crearRecetaCabecera(int idCita, String fecha) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("id_cita", idCita);
+        cv.put("fecha_emision", fecha);
+        long idReceta = db.insert("recetas_medicas", null, cv);
+        db.close();
+        return idReceta;
+    }
+
+    public void agregarDetalleReceta(long idReceta, int idMedicamento, String cantidad, String indicaciones) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("id_receta", idReceta);
+        cv.put("id_medicamento", idMedicamento);
+        cv.put("cantidad", cantidad);
+        cv.put("indicaciones", indicaciones);
+
+        db.insert("receta_detalle", null, cv);
+
+        // actualizarStock(idMedicamento, cantidad);
+
+        db.close();
+    }
+
+    public Cursor getDetalleCita(int idCita) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM citas WHERE id = ?";
+        return db.rawQuery(query, new String[]{String.valueOf(idCita)});
     }
 
 }

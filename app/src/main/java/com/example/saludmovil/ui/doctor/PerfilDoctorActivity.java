@@ -58,12 +58,10 @@ public class PerfilDoctorActivity extends AppCompatActivity {
         btnVerTitulo = findViewById(R.id.btnVerTitulo);
         btnActualizarTitulo = findViewById(R.id.btnActualizarTitulo);
 
-        // --- Configuración de la Toolbar ---
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationOnClickListener(v -> finish());
 
-        // --- Obtener ID de Sesión ---
         SharedPreferences sp = getSharedPreferences("datos_usuario", MODE_PRIVATE);
         idUsuarioDoctor = sp.getInt("id_usuario", -1);
         if (idUsuarioDoctor == -1) {

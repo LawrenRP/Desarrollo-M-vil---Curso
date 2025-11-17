@@ -93,7 +93,6 @@ public class UbicanosMapActivity extends AppCompatActivity implements OnMapReady
         activarMiUbicacion();
     }
 
-    // El resto de los métodos se mantienen exactamente igual
     private void activarMiUbicacion() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             if (miMapa != null) {

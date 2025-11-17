@@ -21,7 +21,7 @@ import com.example.saludmovil.R;
 import com.example.saludmovil.utils.Validaciones;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputLayout; // Importamos TextInputLayout
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.json.JSONException;
@@ -32,13 +32,10 @@ import java.util.Locale;
 
 public class RegistrarActivity extends AppCompatActivity {
 
-    // Vistas de UI
     TextInputEditText edDNI, edNombre, edApellido, edFechaNacimiento, edCorreo, edClave, edConfirmarClave;
     Button btnRegistrar;
     MaterialButton btnPacienteExistente, btnVerificarDNI;
     MaterialToolbar toolbar;
-
-    // Layouts para poder habilitarlos/deshabilitarlos
     TextInputLayout layoutNombre, layoutApellido, layoutFecha, layoutCorreo, layoutClave, layoutConfirmar;
 
     private RequestQueue colaPeticiones;
@@ -49,7 +46,7 @@ public class RegistrarActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registrar);
 
-        vincularVistas(); // Usamos un método para mantener onCreate limpio
+        vincularVistas();
 
         colaPeticiones = Volley.newRequestQueue(this);
 
@@ -78,7 +75,6 @@ public class RegistrarActivity extends AppCompatActivity {
         btnPacienteExistente = findViewById(R.id.textViewPacienteExistente);
         btnVerificarDNI = findViewById(R.id.buttonVerificarDNI);
 
-        // Vinculamos los Layouts para poder deshabilitarlos
         layoutNombre = findViewById(R.id.textInputLayoutRegNombre);
         layoutApellido = findViewById(R.id.textInputLayoutRegApellido);
         layoutFecha = findViewById(R.id.textInputLayoutRegFecha);
@@ -88,7 +84,6 @@ public class RegistrarActivity extends AppCompatActivity {
     }
 
     private void configurarEstadoInicialFormulario() {
-        // Deshabilitamos todo excepto el DNI y el botón de verificar
         layoutNombre.setEnabled(false);
         layoutApellido.setEnabled(false);
         layoutFecha.setEnabled(false);
@@ -99,18 +94,16 @@ public class RegistrarActivity extends AppCompatActivity {
     }
 
     private void habilitarFormularioPostVerificacion() {
-        // Habilitamos el resto del formulario
         layoutFecha.setEnabled(true);
         layoutCorreo.setEnabled(true);
         layoutClave.setEnabled(true);
         layoutConfirmar.setEnabled(true);
         btnRegistrar.setEnabled(true);
 
-        // Bloqueamos los campos ya verificados
         edDNI.setEnabled(false);
         btnVerificarDNI.setEnabled(false);
-        layoutNombre.setEnabled(false); // Mantenemos el nombre bloqueado
-        layoutApellido.setEnabled(false); // Mantenemos el apellido bloqueado
+        layoutNombre.setEnabled(false);
+        layoutApellido.setEnabled(false);
     }
 
     private void setupClickListeners(){
@@ -132,7 +125,6 @@ public class RegistrarActivity extends AppCompatActivity {
         });
 
         btnRegistrar.setOnClickListener(view -> {
-            // Recolectamos todos los datos
             String dni = edDNI.getText().toString().trim();
             String nombre = edNombre.getText().toString().trim();
             String apellido = edApellido.getText().toString().trim();
@@ -141,7 +133,6 @@ public class RegistrarActivity extends AppCompatActivity {
             String clave = edClave.getText().toString().trim();
             String confirmarClave = edConfirmarClave.getText().toString().trim();
 
-            // Validaciones
             if (fechaNacimiento.isEmpty() || correo.isEmpty() || clave.isEmpty() || confirmarClave.isEmpty()){
                 Toast.makeText(getApplicationContext(), "Por favor, llene todos los campos restantes", Toast.LENGTH_SHORT).show();
                 return;
@@ -157,12 +148,10 @@ public class RegistrarActivity extends AppCompatActivity {
             }
 
             if (!Validaciones.esFechaNacimientoValida(fechaNacimiento)) {
-                // Ahora la Activity se encarga de mostrar el mensaje
                 Toast.makeText(getApplicationContext(), "La fecha de nacimiento no es válida. Debes ser mayor de 18 años.", Toast.LENGTH_LONG).show();
                 return;
             }
 
-            // Si todo es válido, registramos
             BaseDeDatos bd = new BaseDeDatos(getApplicationContext());
             long idUsuario = bd.registrarUsuario(correo, clave, "paciente");
 
@@ -180,7 +169,7 @@ public class RegistrarActivity extends AppCompatActivity {
 
     private void verificarDNIconAPI(String dni) {
         Toast.makeText(this, "Verificando DNI...", Toast.LENGTH_SHORT).show();
-        btnVerificarDNI.setEnabled(false); // Deshabilitamos el botón mientras verifica
+        btnVerificarDNI.setEnabled(false);
 
 
         String url = "https://api.decolecta.com/v1/reniec/dni?numero=" + dni;
@@ -194,11 +183,10 @@ public class RegistrarActivity extends AppCompatActivity {
                         String apellidoPaterno = response.getString("first_last_name");
                         String apellidoMaterno = response.getString("second_last_name");
 
-                        // Capitalizamos los nombres para que se vean mejor (ej. ROXANA -> Roxana)
                         edNombre.setText(Validaciones.capitalizarPalabras(nombres));
                         edApellido.setText(Validaciones.capitalizarPalabras(apellidoPaterno + " " + apellidoMaterno));
 
-                        habilitarFormularioPostVerificacion(); // Desbloqueamos el resto del formulario
+                        habilitarFormularioPostVerificacion();
 
                         Toast.makeText(this, "DNI verificado. Por favor, complete el resto de sus datos.", Toast.LENGTH_LONG).show();
 
@@ -209,16 +197,14 @@ public class RegistrarActivity extends AppCompatActivity {
                     }
                 },
                 error -> {
-                    // Si Decolecta da un error (DNI no encontrado, token inválido, etc.)
                     Toast.makeText(this, "El DNI ingresado no existe o no pudo ser verificado.", Toast.LENGTH_LONG).show();
                     btnVerificarDNI.setEnabled(true);
                 }
         ) {
-            //  VOLVEMOS A USAR LA CABECERA DE AUTORIZACIÓN
             @Override
             public java.util.Map<String, String> getHeaders() {
                 java.util.Map<String, String> headers = new java.util.HashMap<>();
-                headers.put("Content-Type", "application/json"); // Como indica la documentación
+                headers.put("Content-Type", "application/json");
                 headers.put("Authorization", token);
                 return headers;
             }

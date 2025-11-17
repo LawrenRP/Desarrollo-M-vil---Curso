@@ -17,7 +17,6 @@ public class CitasViewPagerAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        // Este método decide qué Fragment mostrar según la posición
         switch (position) {
             case 0:
                 return new CitasProximasFragment();
