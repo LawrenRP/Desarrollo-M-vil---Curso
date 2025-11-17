@@ -158,7 +158,7 @@ public class RegistrarDoctorPaso1Activity extends AppCompatActivity {
         String url = "https://api.decolecta.com/v1/reniec/dni?numero=" + dni;
 
 
-        final String token = "Bearer sk_10867.J8lZpYyBORPYrrUvtI14fwpxgKC8JWN9";
+        final String token = "Bearer sk_11710.H4Eh0Rb9Z4GxyXToTjrPAWTuQO3ppNSc";
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 response -> {
