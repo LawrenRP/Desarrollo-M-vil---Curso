@@ -126,7 +126,6 @@ public class InicioDoctorActivity extends AppCompatActivity {
         }
     }
     private void cargarDatosDeInicio() {
-        // Consultamos la BD UNA SOLA VEZ
         Cursor cursor = bd.getProximaCitaDoctor(idUsuarioDoctor);
 
         if (cursor != null && cursor.moveToFirst()) {
@@ -144,7 +143,6 @@ public class InicioDoctorActivity extends AppCompatActivity {
             tvProximaCitaPaciente.setText("Paciente: " + nombrePaciente + " " + apellidoPaciente);
             cardProximaCitaDoctor.setVisibility(View.VISIBLE);
 
-            // --- 3. Enviamos la NOTIFICACIÓN PUSH ---
             String titulo = "Próxima Cita";
             String texto = "Tu próxima cita es con el paciente " + nombrePaciente + " " + apellidoPaciente +
                     " el " + fechaCita + " a las " + horaCita;

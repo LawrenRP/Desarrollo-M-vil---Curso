@@ -52,7 +52,7 @@ public class BuscarPacienteActivity extends AppCompatActivity implements Pacient
         }
 
         bd = new BaseDeDatos(this);
-        adapter = new PacienteBusquedaAdapter(this); // 'this' es el listener
+        adapter = new PacienteBusquedaAdapter(this);
         recyclerViewBusqueda.setAdapter(adapter);
 
         etBuscarPaciente.addTextChangedListener(new TextWatcher() {

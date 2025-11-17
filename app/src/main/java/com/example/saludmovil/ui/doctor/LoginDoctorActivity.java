@@ -15,7 +15,7 @@ import com.google.android.material.textfield.TextInputEditText;
 
 public class LoginDoctorActivity extends AppCompatActivity {
 
-    TextInputEditText edCmp, edClave; // ¡Perfecto que ya lo hayas cambiado!
+    TextInputEditText edCmp, edClave;
     MaterialButton btnLogin, btnRegistrar;
 
     @Override
@@ -35,7 +35,6 @@ public class LoginDoctorActivity extends AppCompatActivity {
 
 
         btnLogin.setOnClickListener(v -> {
-            // 1. Nombramos la variable local para que sea 'cmp'
             String cmp = edCmp.getText().toString().trim();
             String clave = edClave.getText().toString().trim();
             BaseDeDatos bd = new BaseDeDatos(getApplicationContext());
@@ -45,7 +44,6 @@ public class LoginDoctorActivity extends AppCompatActivity {
                 return;
             }
 
-            // 2 ¡EL CAMBIO MÁS IMPORTANTE! Usamos el nuevo método por CMP
             Cursor cursor = bd.loginDoctorPorCMP(cmp, clave);
 
             if (cursor != null && cursor.moveToFirst()) {
@@ -77,7 +75,6 @@ public class LoginDoctorActivity extends AppCompatActivity {
                 if(cursor != null) {
                     cursor.close();
                 }
-                // 3. Actualizamos el mensaje de error
                 Toast.makeText(getApplicationContext(), "CMP o contraseña incorrectos", Toast.LENGTH_SHORT).show();
             }
         });

@@ -14,18 +14,19 @@ import java.util.Locale;
 public class BaseDeDatos extends SQLiteOpenHelper {
 
     private static final String NOMBRE_BD = "SaludMovil.db";
-    private static final int VERSION_BD = 4;
+    private static final int VERSION_BD = 5;
 
-    // --- Definición de las Tablas ---
     private static final String CREAR_TABLA_USUARIOS = "CREATE TABLE usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, correo TEXT UNIQUE NOT NULL, contrasena TEXT NOT NULL, rol TEXT NOT NULL CHECK(rol IN ('paciente', 'doctor')))";
     private static final String CREAR_TABLA_PACIENTES = "CREATE TABLE pacientes (id_usuario INTEGER PRIMARY KEY, dni TEXT UNIQUE NOT NULL, nombre TEXT NOT NULL, apellido TEXT NOT NULL, fecha_nacimiento TEXT NOT NULL, estatura REAL, peso REAL, tipo_sangre TEXT, sexo TEXT, alergias TEXT, enfermedades_cronicas TEXT, medicamentos_actuales TEXT, nombre_contacto_emergencia TEXT, celular_contacto_emergencia TEXT, FOREIGN KEY(id_usuario) REFERENCES usuarios(id))";
     private static final String CREAR_TABLA_ESPECIALIDADES = "CREATE TABLE especialidades (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT UNIQUE NOT NULL, descripcion TEXT)";
-    private static final String CREAR_TABLA_DOCTORES = "CREATE TABLE doctores (id_usuario INTEGER PRIMARY KEY, nombre_completo TEXT NOT NULL, dni TEXT UNIQUE NOT NULL, fecha_nacimiento TEXT NOT NULL, celular TEXT NOT NULL, numero_colegiatura TEXT, id_especialidad INTEGER, ruta_titulo_universitario TEXT, FOREIGN KEY(id_usuario) REFERENCES usuarios(id), FOREIGN KEY(id_especialidad) REFERENCES especialidades(id))";
+    private static final String CREAR_TABLA_DOCTORES = "CREATE TABLE doctores (id_usuario INTEGER PRIMARY KEY, nombre_completo TEXT NOT NULL, dni TEXT UNIQUE NOT NULL, fecha_nacimiento TEXT NOT NULL, celular TEXT NOT NULL, correo TEXT, numero_colegiatura TEXT, id_especialidad INTEGER, ruta_titulo_universitario TEXT, FOREIGN KEY(id_usuario) REFERENCES usuarios(id), FOREIGN KEY(id_especialidad) REFERENCES especialidades(id))";
     private static final String CREAR_TABLA_CITAS = "CREATE TABLE citas (id INTEGER PRIMARY KEY AUTOINCREMENT, id_paciente INTEGER NOT NULL, id_doctor INTEGER NOT NULL, fecha TEXT NOT NULL, hora TEXT NOT NULL, estado TEXT NOT NULL, motivo TEXT, FOREIGN KEY(id_paciente) REFERENCES pacientes(id_usuario), FOREIGN KEY(id_doctor) REFERENCES doctores(id_usuario))";
     private static final String CREAR_TABLA_HORARIOS = "CREATE TABLE horarios (id INTEGER PRIMARY KEY AUTOINCREMENT, id_doctor INTEGER NOT NULL, turno TEXT NOT NULL, dia_semana TEXT NOT NULL, hora_inicio TEXT NOT NULL, hora_fin TEXT NOT NULL, pacientes_por_turno INTEGER NOT NULL, FOREIGN KEY(id_doctor) REFERENCES doctores(id_usuario))";
     private static final String CREAR_TABLA_HISTORIAL_CLINICO = "CREATE TABLE historial_clinico (id INTEGER PRIMARY KEY AUTOINCREMENT, id_cita INTEGER UNIQUE NOT NULL, notas_doctor TEXT NOT NULL, diagnostico TEXT, fecha_creacion TEXT NOT NULL, FOREIGN KEY(id_cita) REFERENCES citas(id))";
-    private static final String CREAR_TABLA_RECETAS_MEDICAS = "CREATE TABLE recetas_medicas (id INTEGER PRIMARY KEY AUTOINCREMENT, id_cita INTEGER UNIQUE NOT NULL, medicamentos TEXT NOT NULL, indicaciones TEXT, fecha_emision TEXT NOT NULL, FOREIGN KEY(id_cita) REFERENCES citas(id))";
     private static final String CREAR_TABLA_DOCUMENTOS = "CREATE TABLE documentos (id INTEGER PRIMARY KEY AUTOINCREMENT, id_cita INTEGER, id_usuario INTEGER NOT NULL, nombre_documento TEXT NOT NULL, ruta_documento TEXT NOT NULL, tipo_documento TEXT, FOREIGN KEY(id_cita) REFERENCES citas(id), FOREIGN KEY(id_usuario) REFERENCES usuarios(id))";
+    private static final String CREAR_TABLA_MEDICAMENTOS = "CREATE TABLE medicamentos (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT NOT NULL, presentacion TEXT, stock INTEGER)";
+    private static final String CREAR_TABLA_RECETAS_MEDICAS = "CREATE TABLE recetas_medicas (id INTEGER PRIMARY KEY AUTOINCREMENT, id_cita INTEGER UNIQUE NOT NULL, fecha_emision TEXT NOT NULL, FOREIGN KEY(id_cita) REFERENCES citas(id))";
+    private static final String CREAR_TABLA_RECETA_DETALLE = "CREATE TABLE receta_detalle (id INTEGER PRIMARY KEY AUTOINCREMENT, id_receta INTEGER NOT NULL, id_medicamento INTEGER NOT NULL, cantidad TEXT, indicaciones TEXT, FOREIGN KEY(id_receta) REFERENCES recetas_medicas(id), FOREIGN KEY(id_medicamento) REFERENCES medicamentos(id))";
 
     public BaseDeDatos(@Nullable Context context) {
         super(context, NOMBRE_BD, null, VERSION_BD);
@@ -35,27 +36,26 @@ public class BaseDeDatos extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREAR_TABLA_USUARIOS);
         db.execSQL(CREAR_TABLA_ESPECIALIDADES);
-        String[] especialidades = {"Medicina General", "Pediatría", "Cardiología", "Dermatología", "Ginecología", "Neurología", "Psicología"};
-        ContentValues cv = new ContentValues();
-        for (String esp : especialidades) {
-            cv.put("nombre", esp);
-            cv.put("descripcion", "Especialidad de " + esp);
-            db.insert("especialidades", null, cv);
-            cv.clear();
-        }
         db.execSQL(CREAR_TABLA_PACIENTES);
         db.execSQL(CREAR_TABLA_DOCTORES);
         db.execSQL(CREAR_TABLA_CITAS);
         db.execSQL(CREAR_TABLA_HORARIOS);
         db.execSQL(CREAR_TABLA_HISTORIAL_CLINICO);
-        db.execSQL(CREAR_TABLA_RECETAS_MEDICAS);
         db.execSQL(CREAR_TABLA_DOCUMENTOS);
-    }
 
+        db.execSQL(CREAR_TABLA_MEDICAMENTOS);
+        db.execSQL(CREAR_TABLA_RECETAS_MEDICAS);
+        db.execSQL(CREAR_TABLA_RECETA_DETALLE);
+
+        insertarEspecialidadesIniciales(db);
+        insertarMedicamentosIniciales(db);
+    }
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS documentos");
+        db.execSQL("DROP TABLE IF EXISTS receta_detalle");
         db.execSQL("DROP TABLE IF EXISTS recetas_medicas");
+        db.execSQL("DROP TABLE IF EXISTS medicamentos");
+        db.execSQL("DROP TABLE IF EXISTS documentos");
         db.execSQL("DROP TABLE IF EXISTS historial_clinico");
         db.execSQL("DROP TABLE IF EXISTS horarios");
         db.execSQL("DROP TABLE IF EXISTS citas");
@@ -64,6 +64,41 @@ public class BaseDeDatos extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS especialidades");
         db.execSQL("DROP TABLE IF EXISTS usuarios");
         onCreate(db);
+    }
+
+    private void insertarEspecialidadesIniciales(SQLiteDatabase db) {
+        String[] especialidades = {"Medicina General", "Pediatría", "Cardiología", "Dermatología", "Ginecología", "Neurología", "Psicología", "Nutrición"};
+        ContentValues cv = new ContentValues();
+        for (String esp : especialidades) {
+            cv.put("nombre", esp);
+            cv.put("descripcion", "Especialidad de " + esp);
+            db.insert("especialidades", null, cv);
+            cv.clear();
+        }
+    }
+
+    private void insertarMedicamentosIniciales(SQLiteDatabase db) {
+        String[][] meds = {
+                {"Paracetamol", "500mg", "100"},
+                {"Ibuprofeno", "400mg", "100"},
+                {"Amoxicilina", "500mg", "50"},
+                {"Loratadina", "10mg", "80"},
+                {"Omeprazol", "20mg", "60"},
+                {"Salbutamol", "Inhalador", "30"},
+                {"Metformina", "850mg", "40"},
+                {"Losartán", "50mg", "40"},
+                {"Aspirina", "100mg", "100"},
+                {"Naproxeno", "550mg", "50"}
+        };
+
+        ContentValues cv = new ContentValues();
+        for (String[] med : meds) {
+            cv.put("nombre", med[0]);
+            cv.put("presentacion", med[1]);
+            cv.put("stock", Integer.parseInt(med[2]));
+            db.insert("medicamentos", null, cv);
+            cv.clear();
+        }
     }
 
     // --- MÉTODOS DE GESTIÓN DE USUARIOS (REGISTRO Y LOGIN) ---
@@ -91,7 +126,7 @@ public class BaseDeDatos extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void registrarDoctorPaso1(long idUsuario, String nombreCompleto, String dni, String fechaNacimiento, String celular) {
+    public void registrarDoctorPaso1(long idUsuario, String nombreCompleto, String dni, String fechaNacimiento, String celular, String correo) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("id_usuario", idUsuario);
@@ -99,6 +134,7 @@ public class BaseDeDatos extends SQLiteOpenHelper {
         cv.put("dni", dni);
         cv.put("fecha_nacimiento", fechaNacimiento);
         cv.put("celular", celular);
+        cv.put("correo", correo);
         db.insert("doctores", null, cv);
         db.close();
     }
@@ -109,6 +145,7 @@ public class BaseDeDatos extends SQLiteOpenHelper {
         cv.put("numero_colegiatura", numColegiatura);
         cv.put("id_especialidad", idEspecialidad);
         cv.put("ruta_titulo_universitario", rutaTitulo);
+
         db.update("doctores", cv, "id_usuario = ?", new String[]{String.valueOf(idUsuario)});
         db.close();
     }
@@ -367,10 +404,11 @@ public class BaseDeDatos extends SQLiteOpenHelper {
         return db.rawQuery(query, new String[]{String.valueOf(idUsuarioDoctor)});
     }
 
-    public void actualizarPerfilDoctor(int idUsuarioDoctor, String nuevoTelefono, String nuevoCorreo){
+    public void actualizarPerfilDoctor(int idUsuarioDoctor, String nuevoTelefono, String nuevoCorreo) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cvDoctor = new ContentValues();
         cvDoctor.put("celular", nuevoTelefono);
+        cvDoctor.put("correo", nuevoCorreo);
         db.update("doctores", cvDoctor, "id_usuario = ?", new String[]{String.valueOf(idUsuarioDoctor)});
         ContentValues cvUsuario = new ContentValues();
         cvUsuario.put("correo", nuevoCorreo);
@@ -406,7 +444,7 @@ public class BaseDeDatos extends SQLiteOpenHelper {
                 "FROM citas c " +
                 "JOIN doctores d ON c.id_doctor = d.id_usuario " +
                 "WHERE c.id_paciente = ? AND (c.estado = 'Completada' OR c.estado = 'Cancelada') " +
-                "ORDER BY c.fecha DESC, c.hora DESC"; // Pasadas más recientes primero
+                "ORDER BY c.fecha DESC, c.hora DESC";
 
         return db.rawQuery(query, new String[]{String.valueOf(idPaciente)});
     }

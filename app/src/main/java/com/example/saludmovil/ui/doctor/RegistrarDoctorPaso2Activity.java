@@ -111,7 +111,7 @@ public class RegistrarDoctorPaso2Activity extends AppCompatActivity {
             long idUsuario = bd.registrarUsuario(correoPaso1, clavePaso1, "doctor");
 
             if (idUsuario != -1) {
-                bd.registrarDoctorPaso1(idUsuario, nombrePaso1, dniPaso1, fechaNacPaso1, telefonoPaso1);
+                bd.registrarDoctorPaso1(idUsuario, nombrePaso1, dniPaso1, fechaNacPaso1, telefonoPaso1, correoPaso1);
                 int idEspecialidad = bd.getIdEspecialidad(especialidad);
 
                 bd.registrarDoctorPaso2(idUsuario, cmp, idEspecialidad, rutaTituloGuardado);

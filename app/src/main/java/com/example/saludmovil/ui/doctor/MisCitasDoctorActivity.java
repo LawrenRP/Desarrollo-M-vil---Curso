@@ -3,11 +3,10 @@ package com.example.saludmovil.ui.doctor;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.widget.ImageButton; // Importante: Se cambió Toolbar por ImageButton
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-// import androidx.appcompat.widget.Toolbar; // Ya no se usa Toolbar
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.saludmovil.database.BaseDeDatos;
@@ -35,19 +34,8 @@ public class MisCitasDoctorActivity extends AppCompatActivity implements CitasDo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mis_citas_doctor);
 
-        // --- INICIO DE CAMBIOS ---
-        // El Toolbar ya no existe en el nuevo layout.
-        // Lo reemplazamos por el ImageButton 'buttonAtras'.
-
-        // Toolbar toolbar = findViewById(R.id.toolbarMisCitas); // BORRADO
-        // setSupportActionBar(toolbar); // BORRADO
-        // getSupportActionBar().setDisplayHomeAsUpEnabled(true); // BORRADO
-        // toolbar.setNavigationOnClickListener(v -> finish()); // BORRADO
-
-        // CÓDIGO NUEVO:
         ImageButton btnAtras = findViewById(R.id.buttonAtras);
-        btnAtras.setOnClickListener(v -> finish()); // Configura el clic para cerrar la actividad
-        // --- FIN DE CAMBIOS ---
+        btnAtras.setOnClickListener(v -> finish());
 
 
         SharedPreferences sp = getSharedPreferences("datos_usuario", MODE_PRIVATE);
@@ -85,7 +73,6 @@ public class MisCitasDoctorActivity extends AppCompatActivity implements CitasDo
         Cursor cursor = bd.getTodasCitasDoctor(idUsuarioDoctor);
 
         if (cursor != null && cursor.moveToFirst()) {
-            // Obtenemos los índices una sola vez, fuera del bucle
             int idCitaIndex = cursor.getColumnIndex("id");
             int fechaIndex = cursor.getColumnIndex("fecha");
             int horaIndex = cursor.getColumnIndex("hora");
@@ -95,7 +82,6 @@ public class MisCitasDoctorActivity extends AppCompatActivity implements CitasDo
             int apellidoIndex = cursor.getColumnIndex("apellido");
 
             do {
-                // Verificamos que todas las columnas existan antes de leer
                 if (idCitaIndex != -1 && fechaIndex != -1 && horaIndex != -1 && estadoIndex != -1 &&
                         motivoIndex != -1 && nombreIndex != -1 && apellidoIndex != -1) {
 
@@ -113,7 +99,6 @@ public class MisCitasDoctorActivity extends AppCompatActivity implements CitasDo
         }
 
         adapter.setCitas(listaDeCitas);
-        // Asegurarse de que el filtro inicial se aplique después de cargar los datos
         List<Integer> checkedIds = chipGroupFiltroDoctor.getCheckedChipIds();
         String filtroActual = "Todos";
         if (!checkedIds.isEmpty()) {
@@ -171,9 +156,8 @@ public class MisCitasDoctorActivity extends AppCompatActivity implements CitasDo
         boolean exito = bd.actualizarEstadoCita(idCita, nuevoEstado);
         if (exito) {
             Toast.makeText(this, "Cita actualizada a: " + nuevoEstado, Toast.LENGTH_SHORT).show();
-            cargarCitasDelDoctor(); // Recarga los datos de la BD
+            cargarCitasDelDoctor();
 
-            // Vuelve a aplicar el filtro que estaba seleccionado
             List<Integer> checkedIds = chipGroupFiltroDoctor.getCheckedChipIds();
             String filtroActual = "Todos";
             if (!checkedIds.isEmpty()) {

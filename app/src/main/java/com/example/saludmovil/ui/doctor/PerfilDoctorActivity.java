@@ -1,6 +1,6 @@
 package com.example.saludmovil.ui.doctor;
 
-import com.example.saludmovil.BuildConfig; // ✨ 1. El import está aquí
+import com.example.saludmovil.BuildConfig;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,7 +28,6 @@ import java.io.InputStream;
 
 public class PerfilDoctorActivity extends AppCompatActivity {
 
-    // Vistas de UI
     private Toolbar toolbar;
     private TextView tvNombre, tvDNI, tvCMP, tvEspecialidad, tvNombreArchivo;
     private TextInputEditText etTelefono, etCorreo;
@@ -47,7 +46,6 @@ public class PerfilDoctorActivity extends AppCompatActivity {
 
         bd = new BaseDeDatos(this);
 
-        // --- Vinculación de Vistas ---
         toolbar = findViewById(R.id.toolbarPerfilDoctor);
         tvNombre = findViewById(R.id.tvPerfilDoctorNombre);
         tvDNI = findViewById(R.id.tvPerfilDoctorDNI);
@@ -74,15 +72,12 @@ public class PerfilDoctorActivity extends AppCompatActivity {
             return;
         }
 
-        // --- Cargar Datos ---
         cargarDatosDoctor();
 
-        // --- Configurar Listeners de Botones ---
         btnGuardar.setOnClickListener(v -> guardarCambios());
         btnActualizarTitulo.setOnClickListener(v -> actualizarTitulo());
         btnVerTitulo.setOnClickListener(v -> verTitulo());
 
-        // --- Configurar el Lanzador de Archivos (para "Actualizar Título") ---
         filePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 uri -> {
@@ -106,7 +101,6 @@ public class PerfilDoctorActivity extends AppCompatActivity {
         Cursor cursor = bd.getPerfilDoctor(idUsuarioDoctor);
         if (cursor != null && cursor.moveToFirst()) {
 
-            // 1. Obtenemos todos los índices de las columnas ANTES de usarlos
             int nombreIndex = cursor.getColumnIndex("nombre_completo");
             int dniIndex = cursor.getColumnIndex("dni");
             int cmpIndex = cursor.getColumnIndex("numero_colegiatura");
@@ -115,7 +109,6 @@ public class PerfilDoctorActivity extends AppCompatActivity {
             int rutaIndex = cursor.getColumnIndex("ruta_titulo_universitario");
             int especialidadIndex = cursor.getColumnIndex("id_especialidad");
 
-            // 2. Verificamos que el índice sea válido (no sea -1) antes de leer el dato
             if(nombreIndex != -1) tvNombre.setText("Dr. " + cursor.getString(nombreIndex));
             if(dniIndex != -1) tvDNI.setText("DNI: " + cursor.getString(dniIndex));
             if(cmpIndex != -1) tvCMP.setText("CMP: " + cursor.getString(cmpIndex));
@@ -126,7 +119,7 @@ public class PerfilDoctorActivity extends AppCompatActivity {
                 nombreArchivoActual = cursor.getString(rutaIndex);
                 tvNombreArchivo.setText(nombreArchivoActual);
             } else {
-                nombreArchivoActual = ""; // Aseguramos que esté vacío si no se encuentra
+                nombreArchivoActual = "";
             }
 
             if(especialidadIndex != -1) {
@@ -164,8 +157,6 @@ public class PerfilDoctorActivity extends AppCompatActivity {
 
         try {
             File file = new File(getFilesDir(), nombreArchivoActual);
-
-            // ✨ 2. AQUÍ ESTÁ EL CÓDIGO IDEAL (SIN HARDCODEAR) ✨
             Uri fileUri = FileProvider.getUriForFile(this,
                     BuildConfig.APPLICATION_ID + ".provider",
                     file);
@@ -181,8 +172,6 @@ public class PerfilDoctorActivity extends AppCompatActivity {
             Toast.makeText(this, "Error al abrir el archivo. ¿Tienes un lector de PDF?", Toast.LENGTH_LONG).show();
         }
     }
-
-    // Método para copiar el archivo
     private boolean copiarArchivoPrivado(Uri uri, String nombreArchivo) {
         try (InputStream inputStream = getContentResolver().openInputStream(uri);
              FileOutputStream outputStream = openFileOutput(nombreArchivo, Context.MODE_PRIVATE)) {

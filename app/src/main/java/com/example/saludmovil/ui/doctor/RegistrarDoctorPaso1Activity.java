@@ -102,7 +102,7 @@ public class RegistrarDoctorPaso1Activity extends AppCompatActivity {
 
         edDNI.setEnabled(false);
         btnVerificarDNI.setEnabled(false);
-        layoutNombre.setEnabled(false); // Mantenemos el nombre bloqueado después de autocompletar
+        layoutNombre.setEnabled(false);
     }
 
     private void setupClickListeners() {
