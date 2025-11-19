@@ -4,7 +4,6 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,7 +26,6 @@ public class ExpedientePacienteActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private TextView tvNombre, tvDNI, tvAlergias, tvEnfermedades;
-    private Button btnAgendarCita, btnCrearReceta;
     private RecyclerView rvHistorialCitas;
 
     private TextView tvExpedienteFechaNac, tvExpedienteEdad, tvExpedienteEstaturaPeso;
@@ -59,8 +57,6 @@ public class ExpedientePacienteActivity extends AppCompatActivity {
         tvDNI = findViewById(R.id.tvExpedienteDNI);
         tvAlergias = findViewById(R.id.tvExpedienteAlergias);
         tvEnfermedades = findViewById(R.id.tvExpedienteEnfermedades);
-        btnAgendarCita = findViewById(R.id.btnExpedienteAgendarCita);
-        btnCrearReceta = findViewById(R.id.btnExpedienteCrearReceta);
         rvHistorialCitas = findViewById(R.id.rvExpedienteCitas);
 
         tvExpedienteFechaNac = findViewById(R.id.tvExpedienteFechaNac);
@@ -82,9 +78,6 @@ public class ExpedientePacienteActivity extends AppCompatActivity {
 
         cargarDatosPaciente();
         cargarHistorialCitas();
-
-        btnAgendarCita.setOnClickListener(v -> Toast.makeText(this, "Función: Abrir 'Agendar Cita' para este paciente", Toast.LENGTH_SHORT).show());
-        btnCrearReceta.setOnClickListener(v -> Toast.makeText(this, "Función: Abrir 'Crear Receta' para este paciente", Toast.LENGTH_SHORT).show());
     }
 
     private void cargarDatosPaciente() {
