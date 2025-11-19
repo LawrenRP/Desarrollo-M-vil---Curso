@@ -240,33 +240,6 @@
                 tools:itemCount="2"
                 tools:listitem="@layout/item_medicamento_recetado" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Indicaciones Adicionales"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
-                android:textColor="@color/texto_principal"
-                android:textStyle="bold" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:cardBackgroundColor="@color/blanco"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp">
-
-                <TextView
-                    android:id="@+id/tvComentariosDoctor"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:textColor="@color/texto_secundario"
-                    tools:text="Paciente debe reducir el consumo de sal. Medir presión arterial dos veces al día (mañana y noche) y registrarla. Volver en 2 semanas para control." />
-            </com.google.android.material.card.MaterialCardView>
-
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDescargarReceta"
                 android:layout_width="match_parent"
