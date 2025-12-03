@@ -173,6 +173,19 @@
                 tools:listitem="@layout/item_cita_historial"
                 tools:itemCount="3"/>
 
+            <!-- ✨ TextView para mostrar cuando no hay citas -->
+            <TextView
+                android:id="@+id/tvSinCitasHistorial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:padding="24dp"
+                android:text="No hay citas registradas con este paciente"
+                android:textAlignment="center"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="@color/texto_secundario"
+                android:visibility="gone" />
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

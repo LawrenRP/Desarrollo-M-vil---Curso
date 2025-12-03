@@ -26,7 +26,6 @@ import com.example.saludmovil.ui.global.RolesActivity;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.text.SimpleDateFormat;
@@ -139,33 +138,60 @@ public class InicioActivity extends AppCompatActivity {
     }
 
     private void revisarYEnviarNotificacion() {
+        String fechaHoy = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+        // 1. Traemos TODAS las citas "agendadas" de hoy en adelante
         db.collection("citas")
                 .whereEqualTo("id_paciente", idUsuario)
                 .whereEqualTo("estado", "agendada")
-                .orderBy("fecha", Query.Direction.ASCENDING)
-                .limit(1)
+                .whereGreaterThanOrEqualTo("fecha", fechaHoy)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
-                        QueryDocumentSnapshot document = (QueryDocumentSnapshot) queryDocumentSnapshots.getDocuments().get(0);
+
+                        // 2. Convertimos a una lista para poder ordenarla
+                        java.util.List<com.google.firebase.firestore.DocumentSnapshot> listaDocs = queryDocumentSnapshots.getDocuments();
+
+                        // 3. Ordenamos manualmente por Fecha + Hora
+                        java.util.Collections.sort(listaDocs, (d1, d2) -> {
+                            try {
+                                String f1 = d1.getString("fecha");
+                                String h1 = d1.getString("hora");
+                                String f2 = d2.getString("fecha");
+                                String h2 = d2.getString("hora");
+
+                                // Usamos Locale.US para que entienda el "AM" y "PM" correctamente
+                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.US);
+                                Date date1 = sdf.parse(f1 + " " + h1);
+                                Date date2 = sdf.parse(f2 + " " + h2);
+
+                                return date1.compareTo(date2);
+                            } catch (Exception e) {
+                                return 0;
+                            }
+                        });
+
+                        // 4. ¡Ahora sí! La primera de la lista es la verdadera próxima cita
+                        QueryDocumentSnapshot document = (QueryDocumentSnapshot) listaDocs.get(0);
 
                         String fecha = document.getString("fecha");
                         String hora = document.getString("hora");
                         String nombreDoctor = document.getString("nombre_doctor_temp");
+                        if (nombreDoctor == null) nombreDoctor = "Doctor";
 
                         String fechaFormateada = formatearFecha(fecha);
                         tvCitaPendienteInfo.setText(fechaFormateada + " - " + hora);
                         tvCitaPendienteDoctor.setText("Con: " + nombreDoctor);
 
-                        cardProximaCita.post(() -> cardProximaCita.setVisibility(View.VISIBLE));
+                        cardProximaCita.setVisibility(View.VISIBLE);
                         enviarNotificacionPush(nombreDoctor, fechaFormateada, hora);
                     } else {
-                        cardProximaCita.post(() -> cardProximaCita.setVisibility(View.GONE));
+                        cardProximaCita.setVisibility(View.GONE);
                     }
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Error al cargar citas: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    cardProximaCita.post(() -> cardProximaCita.setVisibility(View.GONE));
+                    cardProximaCita.setVisibility(View.GONE);
                 });
     }
 

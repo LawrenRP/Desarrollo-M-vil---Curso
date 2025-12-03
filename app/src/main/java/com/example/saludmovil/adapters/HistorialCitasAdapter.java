@@ -35,14 +35,29 @@ public class HistorialCitasAdapter extends ListAdapter<Cita, HistorialCitasAdapt
         }
 
         void bind(Cita cita) {
-            tvFechaHora.setText(cita.getFecha() + " - " + cita.getHora());
-            tvMotivo.setText(cita.getMotivo());
-            chipEstado.setText(cita.getEstado());
+            if (cita == null) {
+                android.util.Log.e("HistorialAdapter", "❌ Cita es null");
+                return;
+            }
 
-            if ("Completada".equalsIgnoreCase(cita.getEstado())) {
+            // Validación y set de Fecha/Hora
+            String fecha = cita.getFecha() != null ? cita.getFecha() : "Sin fecha";
+            String hora = cita.getHora() != null ? cita.getHora() : "Sin hora";
+            tvFechaHora.setText(fecha + " - " + hora);
+
+            // Validación y set de Motivo
+            String motivo = cita.getMotivo() != null && !cita.getMotivo().isEmpty() ? cita.getMotivo() : "Sin motivo registrado";
+            tvMotivo.setText(motivo);
+
+            // Validación y set de Estado
+            String estado = cita.getEstado() != null ? cita.getEstado() : "Desconocido";
+            chipEstado.setText(estado);
+
+            // Aplicar colores según el estado
+            if ("Completada".equalsIgnoreCase(estado)) {
                 chipEstado.setChipBackgroundColorResource(R.color.estado_completada_fondo);
                 chipEstado.setTextColor(ContextCompat.getColor(context, R.color.estado_completada_texto));
-            } else if ("Cancelada".equalsIgnoreCase(cita.getEstado())) {
+            } else if ("Cancelada".equalsIgnoreCase(estado)) {
                 chipEstado.setChipBackgroundColorResource(R.color.estado_cancelada_fondo);
                 chipEstado.setTextColor(ContextCompat.getColor(context, R.color.estado_cancelada_texto));
             } else {
