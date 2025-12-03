@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "591317058270",
+    "project_id": "saludmovil-app-d0d9d",
+    "storage_bucket": "saludmovil-app-d0d9d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:591317058270:android:7e8b90706d453be49b384f",
+        "android_client_info": {
+          "package_name": "com.example.saludmovil"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDULnZXjoqXU0XauwbG9fPUP9nok054QaM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

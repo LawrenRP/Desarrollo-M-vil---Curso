@@ -369,12 +369,12 @@ public class BaseDeDatos extends SQLiteOpenHelper {
 
     public Cursor getTodasCitasDoctor(int idDoctor) {
         SQLiteDatabase db = this.getReadableDatabase();
+        // ✨ AÑADIMOS 'c.id_paciente'
         String query = "SELECT c.id, c.id_paciente, c.fecha, c.hora, c.estado, c.motivo, p.nombre, p.apellido " +
                 "FROM citas c " +
                 "JOIN pacientes p ON c.id_paciente = p.id_usuario " +
                 "WHERE c.id_doctor = ? " +
                 "ORDER BY c.fecha DESC, c.hora DESC";
-
         return db.rawQuery(query, new String[]{String.valueOf(idDoctor)});
     }
 

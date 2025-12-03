@@ -1,10 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/recyclerViewCitasFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="8dp"
-    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-    tools:listitem="@layout/item_cita_paciente" />
+    android:background="@color/gris_fondo_app">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewCitasFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:padding="8dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_cita_paciente" />
+
+    <LinearLayout
+        android:id="@+id/layoutSinCitasFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/event_24px"
+            app:tint="@color/texto_secundario" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="No tienes citas en esta sección"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:textColor="@color/texto_secundario" />
+    </LinearLayout>
+
+</FrameLayout>

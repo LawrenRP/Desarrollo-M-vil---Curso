@@ -97,8 +97,16 @@
                         android:textAppearance="?attr/textAppearanceTitleMedium"
                         android:textColor="@color/texto_principal"
                         android:textStyle="bold"
-                        android:gravity="center_vertical"
-                        tools:text="Juan Diego De Lawrence Recra Palomino" />
+                        tools:text="Joaquin Adrian Tumba Murillo" />
+
+                    <TextView
+                        android:id="@+id/tvDniPaciente"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="@color/texto_secundario"
+                        tools:text="DNI: 76433541" />
 
                     <View
                         android:layout_width="match_parent"
@@ -119,7 +127,7 @@
                         android:layout_marginTop="4dp"
                         android:textAppearance="?attr/textAppearanceBodyLarge"
                         android:textColor="@color/texto_principal"
-                        tools:text="Dolor de cabeza intenso y fiebre desde hace 3 días." />
+                        tools:text="Dolor de cabeza intenso." />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -158,7 +166,6 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="center_horizontal"
-                            android:textAppearance="?attr/textAppearanceBodyMedium"
                             android:textColor="@color/texto_secundario"
                             tools:text="Estatura: 175cm"/>
                         <TextView
@@ -167,7 +174,6 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="center_horizontal"
-                            android:textAppearance="?attr/textAppearanceBodyMedium"
                             android:textColor="@color/texto_secundario"
                             tools:text="Peso: 70kg"/>
                         <TextView
@@ -176,7 +182,6 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="center_horizontal"
-                            android:textAppearance="?attr/textAppearanceBodyMedium"
                             android:textColor="@color/texto_secundario"
                             tools:text="Sangre: O+"/>
                     </LinearLayout>
@@ -189,17 +194,20 @@
 
                     <TextView
                         android:id="@+id/tvAlergias"
-                        style="@style/ItemPerfilConsulta"
-                        tools:text="Alergias: Polvo, Maní."/>
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="Alergias: Polvo."/>
                     <TextView
                         android:id="@+id/tvEnfermedadesCronicas"
-                        style="@style/ItemPerfilConsulta"
-                        android:layout_marginTop="8dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
                         tools:text="Crónicas: Asma."/>
                     <TextView
                         android:id="@+id/tvMedicamentos"
-                        style="@style/ItemPerfilConsulta"
-                        android:layout_marginTop="8dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
                         tools:text="Medicamentos: Ninguno."/>
 
                     <View
@@ -210,13 +218,15 @@
 
                     <TextView
                         android:id="@+id/tvContactoNombre"
-                        style="@style/ItemPerfilConsulta"
-                        tools:text="Contacto: Maria Palomino"/>
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="Contacto: Maria"/>
                     <TextView
                         android:id="@+id/tvContactoTelefono"
-                        style="@style/ItemPerfilConsulta"
-                        android:layout_marginTop="8dp"
-                        tools:text="Teléfono: 987 654 321"/>
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        tools:text="Teléfono: 987654321"/>
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -265,17 +275,42 @@
                 android:text="Seleccionar Medicamentos"
                 android:textColor="@color/azul_secundario" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvMedicamentosRecetados"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:nestedScrollingEnabled="false"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                android:visibility="gone"
-                tools:visibility="visible"
-                tools:itemCount="2"
-                tools:listitem="@layout/item_medicamento_recetado" />
+                app:cardBackgroundColor="@color/blanco"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:id="@+id/tvListaVacia"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="No hay medicamentos seleccionados"
+                        android:padding="16dp"
+                        android:textAlignment="center"
+                        android:textColor="@color/texto_secundario"
+                        android:visibility="visible"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvMedicamentosRecetados"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        android:visibility="gone"
+                        tools:visibility="gone"
+                        tools:itemCount="2"
+                        tools:listitem="@layout/item_medicamento_recetado" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCompletarConsulta"
@@ -284,6 +319,15 @@
                 android:layout_marginTop="24dp"
                 android:text="Marcar como Completada"
                 android:paddingVertical="12dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancelarConsulta"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Marcar como Cancelada"
+                android:textColor="@color/estado_cancelada_texto" />
 
         </LinearLayout>
     </ScrollView>

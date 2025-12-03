@@ -1,4 +1,5 @@
 package com.example.saludmovil.adapters;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,19 +10,19 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.saludmovil.R;
-import com.example.saludmovil.data.CitaHistorial;
+import com.example.saludmovil.data.Cita;
 import com.google.android.material.chip.Chip;
 
-public class HistorialCitasAdapter extends ListAdapter<CitaHistorial, HistorialCitasAdapter.HistorialViewHolder> {
+public class HistorialCitasAdapter extends ListAdapter<Cita, HistorialCitasAdapter.HistorialViewHolder> {
 
     private Context context;
 
     public HistorialCitasAdapter(Context context) {
-        super(CITA_HISTORIAL_COMPARATOR);
+        super(CITA_COMPARATOR);
         this.context = context;
     }
+
     public class HistorialViewHolder extends RecyclerView.ViewHolder {
         TextView tvFechaHora, tvMotivo;
         Chip chipEstado;
@@ -33,7 +34,7 @@ public class HistorialCitasAdapter extends ListAdapter<CitaHistorial, HistorialC
             chipEstado = itemView.findViewById(R.id.chipHistorialEstado);
         }
 
-        void bind(CitaHistorial cita) {
+        void bind(Cita cita) {
             tvFechaHora.setText(cita.getFecha() + " - " + cita.getHora());
             tvMotivo.setText(cita.getMotivo());
             chipEstado.setText(cita.getEstado());
@@ -60,18 +61,18 @@ public class HistorialCitasAdapter extends ListAdapter<CitaHistorial, HistorialC
 
     @Override
     public void onBindViewHolder(@NonNull HistorialViewHolder holder, int position) {
-        CitaHistorial cita = getItem(position);
-        holder.bind(cita);
+        holder.bind(getItem(position));
     }
 
-    private static final DiffUtil.ItemCallback<CitaHistorial> CITA_HISTORIAL_COMPARATOR = new DiffUtil.ItemCallback<CitaHistorial>() {
+    private static final DiffUtil.ItemCallback<Cita> CITA_COMPARATOR = new DiffUtil.ItemCallback<Cita>() {
         @Override
-        public boolean areItemsTheSame(@NonNull CitaHistorial oldItem, @NonNull CitaHistorial newItem) {
-            return oldItem.getFecha().equals(newItem.getFecha()) && oldItem.getHora().equals(newItem.getHora());
+        public boolean areItemsTheSame(@NonNull Cita oldItem, @NonNull Cita newItem) {
+            if (oldItem.getIdFirestore() != null) return oldItem.getIdFirestore().equals(newItem.getIdFirestore());
+            return oldItem.getIdCita() == newItem.getIdCita();
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull CitaHistorial oldItem, @NonNull CitaHistorial newItem) {
+        public boolean areContentsTheSame(@NonNull Cita oldItem, @NonNull Cita newItem) {
             return oldItem.getEstado().equals(newItem.getEstado());
         }
     };

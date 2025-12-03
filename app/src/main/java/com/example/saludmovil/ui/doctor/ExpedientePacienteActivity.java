@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.saludmovil.R;
 import com.example.saludmovil.adapters.HistorialCitasAdapter;
-import com.example.saludmovil.data.CitaHistorial;
+import com.example.saludmovil.data.Cita;
 import com.example.saludmovil.database.BaseDeDatos;
 
 import java.text.ParseException;
@@ -140,22 +140,36 @@ public class ExpedientePacienteActivity extends AppCompatActivity {
     }
 
     private void cargarHistorialCitas() {
-        ArrayList<CitaHistorial> listaCitas = new ArrayList<>();
+        ArrayList<Cita> listaCitas = new ArrayList<>();
         Cursor cursor = bd.getHistorialDeCitas(idUsuarioDoctor, idUsuarioPaciente);
 
         if (cursor != null && cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndex("id");
             int fechaIndex = cursor.getColumnIndex("fecha");
             int horaIndex = cursor.getColumnIndex("hora");
             int estadoIndex = cursor.getColumnIndex("estado");
             int motivoIndex = cursor.getColumnIndex("motivo");
 
             do {
-                if (fechaIndex != -1 && horaIndex != -1 && estadoIndex != -1 && motivoIndex != -1) {
+                if (idIndex != -1 && fechaIndex != -1 && horaIndex != -1 && estadoIndex != -1 && motivoIndex != -1) {
+                    int idCita = cursor.getInt(idIndex);
                     String fecha = cursor.getString(fechaIndex);
                     String hora = cursor.getString(horaIndex);
                     String estado = cursor.getString(estadoIndex);
                     String motivo = cursor.getString(motivoIndex);
-                    listaCitas.add(new CitaHistorial(fecha, hora, estado, motivo));
+
+                    listaCitas.add(new Cita(
+                            idCita,
+                            String.valueOf(idUsuarioPaciente),
+                            String.valueOf(idUsuarioDoctor),
+                            null,
+                            fecha,
+                            hora,
+                            estado,
+                            motivo,
+                            tvNombre.getText().toString(),
+                            "Yo"
+                    ));
                 }
             } while (cursor.moveToNext());
             cursor.close();

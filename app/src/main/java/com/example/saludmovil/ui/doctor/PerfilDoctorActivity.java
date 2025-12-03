@@ -4,7 +4,6 @@ import com.example.saludmovil.BuildConfig;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
@@ -18,13 +17,15 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
 
 import com.example.saludmovil.R;
-import com.example.saludmovil.database.BaseDeDatos;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PerfilDoctorActivity extends AppCompatActivity {
 
@@ -33,8 +34,8 @@ public class PerfilDoctorActivity extends AppCompatActivity {
     private TextInputEditText etTelefono, etCorreo;
     private Button btnGuardar, btnVerTitulo, btnActualizarTitulo;
 
-    private BaseDeDatos bd;
-    private int idUsuarioDoctor;
+    private FirebaseFirestore db;
+    private String idUsuarioDoctor;
     private String nombreArchivoActual = "";
 
     private ActivityResultLauncher<String> filePickerLauncher;
@@ -44,7 +45,7 @@ public class PerfilDoctorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_perfil_doctor);
 
-        bd = new BaseDeDatos(this);
+        db = FirebaseFirestore.getInstance();
 
         toolbar = findViewById(R.id.toolbarPerfilDoctor);
         tvNombre = findViewById(R.id.tvPerfilDoctorNombre);
@@ -59,12 +60,15 @@ public class PerfilDoctorActivity extends AppCompatActivity {
         btnActualizarTitulo = findViewById(R.id.btnActualizarTitulo);
 
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationOnClickListener(v -> finish());
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            toolbar.setNavigationOnClickListener(v -> finish());
+        }
 
         SharedPreferences sp = getSharedPreferences("datos_usuario", MODE_PRIVATE);
-        idUsuarioDoctor = sp.getInt("id_usuario", -1);
-        if (idUsuarioDoctor == -1) {
+        idUsuarioDoctor = sp.getString("id_usuario", "");
+
+        if (idUsuarioDoctor.isEmpty()) {
             Toast.makeText(this, "Error de sesión", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -81,14 +85,14 @@ public class PerfilDoctorActivity extends AppCompatActivity {
                 uri -> {
                     if (uri != null) {
                         if (nombreArchivoActual.isEmpty()) {
-                            Toast.makeText(this, "Error: No se encontró el nombre del archivo original.", Toast.LENGTH_SHORT).show();
-                            return;
+                            nombreArchivoActual = "titulo_" + System.currentTimeMillis() + ".pdf";
                         }
                         boolean exito = copiarArchivoPrivado(uri, nombreArchivoActual);
                         if (exito) {
-                            Toast.makeText(this, "Título actualizado con éxito", Toast.LENGTH_SHORT).show();
+                            tvNombreArchivo.setText(nombreArchivoActual);
+                            actualizarRutaTituloEnFirestore(nombreArchivoActual);
                         } else {
-                            Toast.makeText(this, "Error al actualizar el archivo", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Error al guardar el archivo", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -96,37 +100,44 @@ public class PerfilDoctorActivity extends AppCompatActivity {
     }
 
     private void cargarDatosDoctor() {
-        Cursor cursor = bd.getPerfilDoctor(idUsuarioDoctor);
-        if (cursor != null && cursor.moveToFirst()) {
+        db.collection("doctores").document(idUsuarioDoctor)
+                .get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        String nombreCompleto = document.getString("nombre_completo");
+                        String dni = document.getString("dni");
+                        String cmp = document.getString("cmp");
+                        String especialidad = document.getString("especialidad");
+                        String celular = document.getString("celular");
+                        String correo = document.getString("correo");
+                        String rutaTitulo = document.getString("ruta_titulo_universitario");
 
-            int nombreIndex = cursor.getColumnIndex("nombre_completo");
-            int dniIndex = cursor.getColumnIndex("dni");
-            int cmpIndex = cursor.getColumnIndex("numero_colegiatura");
-            int celularIndex = cursor.getColumnIndex("celular");
-            int correoIndex = cursor.getColumnIndex("correo");
-            int rutaIndex = cursor.getColumnIndex("ruta_titulo_universitario");
-            int especialidadIndex = cursor.getColumnIndex("id_especialidad");
+                        if (nombreCompleto != null) tvNombre.setText("Dr. " + nombreCompleto);
+                        if (dni != null) tvDNI.setText("DNI: " + dni);
+                        if (cmp != null) tvCMP.setText("CMP: " + cmp);
+                        if (especialidad != null) {
+                            tvEspecialidad.setText("Especialidad: " + especialidad);
+                        } else {
+                            tvEspecialidad.setText("Especialidad: General");
+                        }
 
-            if(nombreIndex != -1) tvNombre.setText("Dr. " + cursor.getString(nombreIndex));
-            if(dniIndex != -1) tvDNI.setText("DNI: " + cursor.getString(dniIndex));
-            if(cmpIndex != -1) tvCMP.setText("CMP: " + cursor.getString(cmpIndex));
-            if(celularIndex != -1) etTelefono.setText(cursor.getString(celularIndex));
-            if(correoIndex != -1) etCorreo.setText(cursor.getString(correoIndex));
+                        if (celular != null) etTelefono.setText(celular);
+                        if (correo != null) etCorreo.setText(correo);
 
-            if(rutaIndex != -1) {
-                nombreArchivoActual = cursor.getString(rutaIndex);
-                tvNombreArchivo.setText(nombreArchivoActual);
-            } else {
-                nombreArchivoActual = "";
-            }
-
-            if(especialidadIndex != -1) {
-                int idEspecialidad = cursor.getInt(especialidadIndex);
-                tvEspecialidad.setText("ID Especialidad: " + idEspecialidad);
-            }
-
-            cursor.close();
-        }
+                        if (rutaTitulo != null && !rutaTitulo.isEmpty()) {
+                            nombreArchivoActual = rutaTitulo;
+                            tvNombreArchivo.setText(rutaTitulo);
+                        } else {
+                            nombreArchivoActual = "";
+                            tvNombreArchivo.setText("Sin título adjunto");
+                        }
+                    } else {
+                        Toast.makeText(this, "No se encontró el perfil del doctor", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error al cargar perfil: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void guardarCambios() {
@@ -138,23 +149,50 @@ public class PerfilDoctorActivity extends AppCompatActivity {
             return;
         }
 
-        bd.actualizarPerfilDoctor(idUsuarioDoctor, nuevoTelefono, nuevoCorreo);
-        Toast.makeText(this, "Perfil actualizado con éxito", Toast.LENGTH_SHORT).show();
-        finish();
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("celular", nuevoTelefono);
+        updates.put("correo", nuevoCorreo);
+
+        db.collection("doctores").document(idUsuarioDoctor)
+                .update(updates)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Perfil actualizado correctamente", Toast.LENGTH_SHORT).show();
+                    finish();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error al guardar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void actualizarTitulo() {
         filePickerLauncher.launch("application/pdf");
     }
 
+    private void actualizarRutaTituloEnFirestore(String nuevaRuta) {
+        db.collection("doctores").document(idUsuarioDoctor)
+                .update("ruta_titulo_universitario", nuevaRuta)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Título actualizado con éxito", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error al actualizar ruta en la nube", Toast.LENGTH_SHORT).show();
+                });
+    }
+
     private void verTitulo() {
         if (nombreArchivoActual.isEmpty()) {
-            Toast.makeText(this, "No hay un título guardado.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No hay un título guardado para ver", Toast.LENGTH_SHORT).show();
             return;
         }
 
         try {
             File file = new File(getFilesDir(), nombreArchivoActual);
+
+            if (!file.exists()) {
+                Toast.makeText(this, "El archivo no está en este dispositivo. Fue subido desde otro lugar.", Toast.LENGTH_LONG).show();
+                return;
+            }
+
             Uri fileUri = FileProvider.getUriForFile(this,
                     BuildConfig.APPLICATION_ID + ".provider",
                     file);
@@ -170,6 +208,7 @@ public class PerfilDoctorActivity extends AppCompatActivity {
             Toast.makeText(this, "Error al abrir el archivo. ¿Tienes un lector de PDF?", Toast.LENGTH_LONG).show();
         }
     }
+
     private boolean copiarArchivoPrivado(Uri uri, String nombreArchivo) {
         try (InputStream inputStream = getContentResolver().openInputStream(uri);
              FileOutputStream outputStream = openFileOutput(nombreArchivo, Context.MODE_PRIVATE)) {
@@ -184,14 +223,6 @@ public class PerfilDoctorActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
             return false;
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (bd != null) {
-            bd.close();
         }
     }
 }
