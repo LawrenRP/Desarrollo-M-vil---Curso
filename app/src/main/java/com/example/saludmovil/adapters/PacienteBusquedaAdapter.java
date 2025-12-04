@@ -1,29 +1,31 @@
 package com.example.saludmovil.adapters;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.saludmovil.R;
 import com.example.saludmovil.data.Paciente;
-import com.example.saludmovil.utils.Validaciones;
+import com.example.saludmovil.utils.Validaciones; // Asegúrate de tener esta utilidad o quita la mayúscula
 
 public class PacienteBusquedaAdapter extends ListAdapter<Paciente, PacienteBusquedaAdapter.PacienteViewHolder> {
 
     private OnPacienteClickListener listener;
+
     public interface OnPacienteClickListener {
         void onPacienteClick(Paciente paciente);
     }
+
     public PacienteBusquedaAdapter(OnPacienteClickListener listener) {
         super(PACIENTE_COMPARATOR);
         this.listener = listener;
     }
+
     public class PacienteViewHolder extends RecyclerView.ViewHolder {
         TextView tvNombre, tvDni;
 
@@ -34,12 +36,15 @@ public class PacienteBusquedaAdapter extends ListAdapter<Paciente, PacienteBusqu
         }
 
         void bind(Paciente paciente) {
+            // Usamos el método de validaciones o ponemos directo si no lo tienes a mano
             String nombreCompleto = paciente.getNombre() + " " + paciente.getApellido();
-            tvNombre.setText(Validaciones.capitalizarPalabras(nombreCompleto));
+            tvNombre.setText(nombreCompleto);
             tvDni.setText("DNI: " + paciente.getDni());
+
             itemView.setOnClickListener(v -> listener.onPacienteClick(paciente));
         }
     }
+
     @NonNull
     @Override
     public PacienteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -50,19 +55,19 @@ public class PacienteBusquedaAdapter extends ListAdapter<Paciente, PacienteBusqu
 
     @Override
     public void onBindViewHolder(@NonNull PacienteViewHolder holder, int position) {
-        Paciente paciente = getItem(position);
-        holder.bind(paciente);
+        holder.bind(getItem(position));
     }
 
     private static final DiffUtil.ItemCallback<Paciente> PACIENTE_COMPARATOR = new DiffUtil.ItemCallback<Paciente>() {
         @Override
         public boolean areItemsTheSame(@NonNull Paciente oldItem, @NonNull Paciente newItem) {
-            return oldItem.getIdUsuario() == newItem.getIdUsuario();
+            // ✨ COMPARAMOS STRINGS
+            return oldItem.getIdUsuario().equals(newItem.getIdUsuario());
         }
+
         @Override
         public boolean areContentsTheSame(@NonNull Paciente oldItem, @NonNull Paciente newItem) {
-            return oldItem.getIdUsuario() == newItem.getIdUsuario() &&
-                    oldItem.getDni().equals(newItem.getDni());
+            return oldItem.getDni().equals(newItem.getDni());
         }
     };
 }

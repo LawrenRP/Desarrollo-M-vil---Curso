@@ -2,6 +2,7 @@ package com.example.saludmovil.ui.paciente;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -16,19 +17,18 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.saludmovil.database.BaseDeDatos;
 import com.example.saludmovil.R;
 import com.example.saludmovil.utils.Validaciones;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textfield.TextInputEditText;
-
-import org.json.JSONException;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
-
+import java.util.Map;
 
 public class RegistrarActivity extends AppCompatActivity {
 
@@ -40,14 +40,15 @@ public class RegistrarActivity extends AppCompatActivity {
 
     private RequestQueue colaPeticiones;
     private boolean hayCambiosSinGuardar = false;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registrar);
 
+        db = FirebaseFirestore.getInstance();
         vincularVistas();
-
         colaPeticiones = Volley.newRequestQueue(this);
 
         setSupportActionBar(toolbar);
@@ -56,7 +57,6 @@ public class RegistrarActivity extends AppCompatActivity {
         }
 
         configurarEstadoInicialFormulario();
-
         setupChangeListeners();
         setupBackButton();
         setupClickListeners();
@@ -102,8 +102,6 @@ public class RegistrarActivity extends AppCompatActivity {
 
         edDNI.setEnabled(false);
         btnVerificarDNI.setEnabled(false);
-        layoutNombre.setEnabled(false);
-        layoutApellido.setEnabled(false);
     }
 
     private void setupClickListeners(){
@@ -124,60 +122,110 @@ public class RegistrarActivity extends AppCompatActivity {
             }
         });
 
-        btnRegistrar.setOnClickListener(view -> {
-            String dni = edDNI.getText().toString().trim();
-            String nombre = edNombre.getText().toString().trim();
-            String apellido = edApellido.getText().toString().trim();
-            String fechaNacimiento = edFechaNacimiento.getText().toString().trim();
-            String correo = edCorreo.getText().toString().trim();
-            String clave = edClave.getText().toString().trim();
-            String confirmarClave = edConfirmarClave.getText().toString().trim();
+        btnRegistrar.setOnClickListener(view -> registrarPacienteEnFirestore());
+    }
 
-            if (fechaNacimiento.isEmpty() || correo.isEmpty() || clave.isEmpty() || confirmarClave.isEmpty()){
-                Toast.makeText(getApplicationContext(), "Por favor, llene todos los campos restantes", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (!clave.equals(confirmarClave)){
-                Toast.makeText(getApplicationContext(), "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (!Validaciones.esValido(clave)){
-                Toast.makeText(getApplicationContext(),
-                        "La contraseña debe tener mínimo 8 caracteres, una letra, un número y un caracter especial", Toast.LENGTH_LONG).show();
-                return;
-            }
+    private void registrarPacienteEnFirestore() {
+        String dni = edDNI.getText().toString().trim();
+        String nombre = edNombre.getText().toString().trim();
+        String apellido = edApellido.getText().toString().trim();
+        String fechaNacimiento = edFechaNacimiento.getText().toString().trim();
+        String correo = edCorreo.getText().toString().trim();
+        String clave = edClave.getText().toString().trim();
+        String confirmarClave = edConfirmarClave.getText().toString().trim();
 
-            if (!Validaciones.esFechaNacimientoValida(fechaNacimiento)) {
-                Toast.makeText(getApplicationContext(), "La fecha de nacimiento no es válida. Debes ser mayor de 18 años.", Toast.LENGTH_LONG).show();
-                return;
-            }
+        if (fechaNacimiento.isEmpty() || correo.isEmpty() || clave.isEmpty() || confirmarClave.isEmpty()){
+            Toast.makeText(getApplicationContext(), "Por favor, llene todos los campos restantes", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!clave.equals(confirmarClave)){
+            Toast.makeText(getApplicationContext(), "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!Validaciones.esValido(clave)){
+            Toast.makeText(getApplicationContext(),
+                    "La contraseña debe tener mínimo 8 caracteres, una letra, un número y un caracter especial",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (!Validaciones.esFechaNacimientoValida(fechaNacimiento)) {
+            Toast.makeText(getApplicationContext(),
+                    "La fecha de nacimiento no es válida. Debes ser mayor de 18 años.",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
 
-            BaseDeDatos bd = new BaseDeDatos(getApplicationContext());
-            long idUsuario = bd.registrarUsuario(correo, clave, "paciente");
+        db.collection("pacientes")
+                .whereEqualTo("dni", dni)
+                .get()
+                .addOnSuccessListener(snapshotDni -> {
+                    if (!snapshotDni.isEmpty()) {
+                        Toast.makeText(this, "Este DNI ya está registrado.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    checkCorreoYGuardar(dni, nombre, apellido, fechaNacimiento, correo, clave);
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Error al verificar DNI: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
 
-            if (idUsuario == -1) {
-                Toast.makeText(getApplicationContext(), "El correo electrónico ya está en uso", Toast.LENGTH_SHORT).show();
-            } else {
-                bd.registrarPaciente(idUsuario, dni, nombre, apellido, fechaNacimiento);
-                hayCambiosSinGuardar = false;
-                Toast.makeText(getApplicationContext(), "¡Registro exitoso!", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(RegistrarActivity.this, LoginActivity.class));
-                finish();
-            }
-        });
+    private void checkCorreoYGuardar(String dni, String nombre, String apellido, String fechaNac, String correo, String clave) {
+        db.collection("pacientes")
+                .whereEqualTo("correo", correo)
+                .get()
+                .addOnSuccessListener(snapshotCorreo -> {
+                    if (!snapshotCorreo.isEmpty()) {
+                        Toast.makeText(this, "Este correo ya está registrado.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    Map<String, Object> paciente = new HashMap<>();
+                    paciente.put("dni", dni);
+                    paciente.put("nombre", nombre);
+                    paciente.put("apellido", apellido);
+                    paciente.put("fecha_nacimiento", fechaNac);
+                    paciente.put("correo", correo);
+                    paciente.put("contrasena", clave);
+                    paciente.put("rol", "paciente");
+                    paciente.put("alergias", "");
+                    paciente.put("estatura", "");
+
+                    db.collection("pacientes")
+                            .add(paciente)
+                            .addOnSuccessListener(documentReference -> {
+                                Toast.makeText(this, "¡Registro exitoso!", Toast.LENGTH_SHORT).show();
+                                hayCambiosSinGuardar = false;
+
+                                // ✨ Guardamos el ID de Firestore en la sesión
+                                String idFirebase = documentReference.getId();
+                                guardarSesion(idFirebase, "paciente");
+
+                                Intent intent = new Intent(RegistrarActivity.this, InicioActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+                                finish();
+                            })
+                            .addOnFailureListener(e -> Toast.makeText(this, "Error al guardar: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Error al verificar correo: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    private void guardarSesion(String id, String rol) {
+        SharedPreferences sp = getSharedPreferences("datos_usuario", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("id_usuario", id);
+        editor.putString("rol_usuario", rol);
+        editor.apply();
     }
 
     private void verificarDNIconAPI(String dni) {
         Toast.makeText(this, "Verificando DNI...", Toast.LENGTH_SHORT).show();
         btnVerificarDNI.setEnabled(false);
 
-
         String url = "https://api.decolecta.com/v1/reniec/dni?numero=" + dni;
         final String token = "Bearer sk_11710.H4Eh0Rb9Z4GxyXToTjrPAWTuQO3ppNSc";
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 response -> {
-
                     try {
                         String nombres = response.getString("first_name");
                         String apellidoPaterno = response.getString("first_last_name");
@@ -187,19 +235,14 @@ public class RegistrarActivity extends AppCompatActivity {
                         edApellido.setText(Validaciones.capitalizarPalabras(apellidoPaterno + " " + apellidoMaterno));
 
                         habilitarFormularioPostVerificacion();
+                        Toast.makeText(this, "DNI verificado. Complete el resto de datos.", Toast.LENGTH_LONG).show();
 
-                        Toast.makeText(this, "DNI verificado. Por favor, complete el resto de sus datos.", Toast.LENGTH_LONG).show();
-
-                    } catch (JSONException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
-                        Toast.makeText(this, "Error al procesar la respuesta del DNI.", Toast.LENGTH_SHORT).show();
-                        btnVerificarDNI.setEnabled(true);
+                        manejarErrorAPI("Error al procesar datos del DNI.");
                     }
                 },
-                error -> {
-                    Toast.makeText(this, "El DNI ingresado no existe o no pudo ser verificado.", Toast.LENGTH_LONG).show();
-                    btnVerificarDNI.setEnabled(true);
-                }
+                error -> manejarErrorAPI("El DNI ingresado no existe o no pudo ser verificado.")
         ) {
             @Override
             public java.util.Map<String, String> getHeaders() {
@@ -210,6 +253,14 @@ public class RegistrarActivity extends AppCompatActivity {
             }
         };
         colaPeticiones.add(request);
+    }
+
+    private void manejarErrorAPI(String mensaje) {
+        Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show();
+        btnVerificarDNI.setEnabled(true);
+        layoutNombre.setEnabled(true);
+        layoutApellido.setEnabled(true);
+        habilitarFormularioPostVerificacion();
     }
 
     private void mostrarCalendario() {
@@ -224,6 +275,7 @@ public class RegistrarActivity extends AppCompatActivity {
         );
         datePickerDialog.show();
     }
+
     private void setupChangeListeners() {
         TextWatcher textWatcher = new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}

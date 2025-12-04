@@ -2,14 +2,12 @@ package com.example.saludmovil.ui.paciente;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -17,112 +15,146 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.saludmovil.R;
 import com.example.saludmovil.adapters.CitasPacienteAdapter;
-import com.example.saludmovil.data.CitaParaPaciente;
-import com.example.saludmovil.database.BaseDeDatos;
+import com.example.saludmovil.data.Cita;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
 public class CitasProximasFragment extends Fragment implements CitasPacienteAdapter.OnCitaClickListener {
 
-    private static final String TAG = "MiAppDebug";
     private RecyclerView recyclerView;
+    private LinearLayout layoutVacio;
     private CitasPacienteAdapter adapter;
-    private ArrayList<CitaParaPaciente> listaDeCitas;
-    private BaseDeDatos bd;
-    private int idUsuarioPaciente;
-    public CitasProximasFragment() {
-        Log.d(TAG, "CitasProximasFragment: Constructor llamado.");
-    }
+    private FirebaseFirestore db;
+    private String idUsuarioPaciente; // ✨ AHORA ES STRING
+    private ListenerRegistration listenerRegistration;
+
+    public CitasProximasFragment() {}
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "CitasProximasFragment: onCreateView - VISTA INFLADA.");
         View view = inflater.inflate(R.layout.fragment_citas_lista, container, false);
+
         SharedPreferences sp = getActivity().getSharedPreferences("datos_usuario", Context.MODE_PRIVATE);
-        idUsuarioPaciente = sp.getInt("id_usuario", -1);
-        bd = new BaseDeDatos(getContext());
-        listaDeCitas = new ArrayList<>();
+        idUsuarioPaciente = sp.getString("id_usuario", null); // ✨ LEER STRING
+
+        db = FirebaseFirestore.getInstance();
+
         recyclerView = view.findViewById(R.id.recyclerViewCitasFragment);
+        layoutVacio = view.findViewById(R.id.layoutSinCitasFragment); // Asegúrate que existe este ID o quítalo
+
         adapter = new CitasPacienteAdapter(getContext(), this);
         recyclerView.setAdapter(adapter);
 
         return view;
     }
-    private void cargarCitas() {
-        if (bd == null) {
-            bd = new BaseDeDatos(getContext());
-        }
-        listaDeCitas.clear();
 
-        Cursor cursor = bd.getProximasCitasPaciente(idUsuarioPaciente);
+    private void escucharCitasEnTiempoReal() {
+        if (idUsuarioPaciente == null) return;
 
-        if (cursor != null && cursor.moveToFirst()) {
-            int idCitaIndex = cursor.getColumnIndex("id");
-            int fechaIndex = cursor.getColumnIndex("fecha");
-            int horaIndex = cursor.getColumnIndex("hora");
-            int estadoIndex = cursor.getColumnIndex("estado");
-            int motivoIndex = cursor.getColumnIndex("motivo");
-            int doctorIndex = cursor.getColumnIndex("nombre_completo");
+        String hoy = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
-            do {
-                if (idCitaIndex != -1 && fechaIndex != -1 && horaIndex != -1 && estadoIndex != -1 &&
-                        motivoIndex != -1 && doctorIndex != -1) {
+        listenerRegistration = db.collection("citas")
+                .whereEqualTo("id_paciente", idUsuarioPaciente)
+                .whereEqualTo("estado", "agendada")
+                .whereGreaterThanOrEqualTo("fecha", hoy)
+                .orderBy("fecha", Query.Direction.ASCENDING)
+                .addSnapshotListener((snapshots, e) -> {
+                    if (e != null) {
+                        // Si falla, revisa el Logcat por el índice
+                        return;
+                    }
 
-                    int idCita = cursor.getInt(idCitaIndex);
-                    String fecha = cursor.getString(fechaIndex);
-                    String hora = cursor.getString(horaIndex);
-                    String estado = cursor.getString(estadoIndex);
-                    String motivo = cursor.getString(motivoIndex);
-                    String nombreDoctor = cursor.getString(doctorIndex);
+                    if (snapshots != null) {
+                        List<Cita> lista = new ArrayList<>();
+                        for (QueryDocumentSnapshot doc : snapshots) {
+                            lista.add(convertirDocumentoACita(doc));
+                        }
+                        adapter.submitList(lista);
 
-                    listaDeCitas.add(new CitaParaPaciente(idCita, fecha, hora, estado, motivo, nombreDoctor));
-                }
-            } while (cursor.moveToNext());
-            cursor.close();
-        }
+                        // Manejo de vista vacía (opcional)
+                        if (lista.isEmpty()) {
+                            recyclerView.setVisibility(View.GONE);
+                            if (layoutVacio != null) layoutVacio.setVisibility(View.VISIBLE);
+                        } else {
+                            recyclerView.setVisibility(View.VISIBLE);
+                            if (layoutVacio != null) layoutVacio.setVisibility(View.GONE);
+                        }
+                    }
+                });
+    }
 
-        adapter.submitList(listaDeCitas);
-        Log.d(TAG, "Citas 'Próximas' encontradas: " + listaDeCitas.size());
+    // Método auxiliar para convertir
+    private Cita convertirDocumentoACita(QueryDocumentSnapshot doc) {
+        String idFirestore = doc.getId();
+
+        // IDs numéricos (legacy)
+        Long idCitaLong = doc.getLong("id_cita_sqlite");
+        int idCita = idCitaLong != null ? idCitaLong.intValue() : 0;
+
+        // Intentamos leer IDs numéricos por si acaso, aunque usamos Strings
+        int idPacienteInt = 0;
+        int idDoctorInt = 0;
+
+        String fecha = doc.getString("fecha");
+        String hora = doc.getString("hora");
+        String estado = doc.getString("estado");
+        String motivo = doc.getString("motivo");
+        String nombreDoctor = doc.getString("nombre_doctor_temp");
+        if (nombreDoctor == null) nombreDoctor = "Dr. Asignado";
+
+        // ✨ Constructor actualizado (10 argumentos)
+        return new Cita(
+                idCita,
+                String.valueOf(idPacienteInt), // int -> String
+                String.valueOf(idDoctorInt),   // int -> String
+                idFirestore,
+                fecha,
+                hora,
+                estado,
+                motivo,
+                "Yo",
+                nombreDoctor
+        );
     }
 
     @Override
-    public void onCitaClick(CitaParaPaciente cita) {
+    public void onCitaClick(Cita cita) {
         new MaterialAlertDialogBuilder(getContext())
                 .setTitle("Cancelar Cita")
-                .setMessage("¿Estás seguro de que deseas cancelar tu cita con el " + cita.getNombreDoctor() + "?")
+                .setMessage("¿Deseas cancelar tu cita con el " + cita.getNombreDoctor() + "?")
                 .setPositiveButton("Sí, cancelar", (dialog, which) -> {
-                    actualizarCita(cita.getIdCita(), "Cancelada");
+                    cancelarCita(cita.getIdFirestore());
                 })
-                .setNegativeButton("No, volver", (dialog, which) -> dialog.dismiss())
+                .setNegativeButton("No", null)
                 .show();
     }
 
-    private void actualizarCita(int idCita, String nuevoEstado) {
-        if (bd == null) {
-            bd = new BaseDeDatos(getContext());
-        }
-        boolean exito = bd.actualizarEstadoCita(idCita, nuevoEstado);
-        if (exito) {
-            Toast.makeText(getContext(), "Cita actualizada a: " + nuevoEstado, Toast.LENGTH_SHORT).show();
-            cargarCitas();
-        } else {
-            Toast.makeText(getContext(), "Error al actualizar la cita", Toast.LENGTH_SHORT).show();
-        }
+    private void cancelarCita(String documentId) {
+        db.collection("citas").document(documentId)
+                .update("estado", "cancelada")
+                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Cita cancelada", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error al cancelar", Toast.LENGTH_SHORT).show());
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG, "CitasProximasFragment: onResume - llamando a cargarCitas().");
-        cargarCitas();
+        escucharCitasEnTiempoReal();
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (bd != null) {
-            bd.close();
-        }
+    public void onPause() {
+        super.onPause();
+        if (listenerRegistration != null) listenerRegistration.remove();
     }
 }

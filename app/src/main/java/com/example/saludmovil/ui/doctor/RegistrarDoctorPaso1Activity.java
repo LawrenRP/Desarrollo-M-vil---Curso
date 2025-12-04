@@ -16,20 +16,24 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-
 import com.example.saludmovil.R;
-import com.example.saludmovil.utils.Validaciones;
+import com.example.saludmovil.utils.Validaciones; // ✨ Usamos tus validaciones
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textfield.TextInputEditText;
 
+import com.google.firebase.firestore.FirebaseFirestore; // ✨ Firestore
+
 import org.json.JSONException;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class RegistrarDoctorPaso1Activity extends AppCompatActivity {
 
+    // Vistas
     TextInputEditText edNombre, edDNI, edFechaNacimiento, edTelefono, edCorreo, edClave, edConfirmarClave;
     Button btnSiguiente;
     MaterialButton btnVerificarDNI;
@@ -38,11 +42,14 @@ public class RegistrarDoctorPaso1Activity extends AppCompatActivity {
 
     private RequestQueue colaPeticiones;
     private boolean hayCambiosSinGuardar = false;
+    private FirebaseFirestore db; // ✨
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registrar_doctor_paso1);
+
+        db = FirebaseFirestore.getInstance(); // Inicializamos
 
         vincularVistas();
         colaPeticiones = Volley.newRequestQueue(this);
@@ -98,7 +105,7 @@ public class RegistrarDoctorPaso1Activity extends AppCompatActivity {
 
         edDNI.setEnabled(false);
         btnVerificarDNI.setEnabled(false);
-        layoutNombre.setEnabled(false);
+        // El nombre se queda deshabilitado si la API lo encontró
     }
 
     private void setupClickListeners() {
@@ -113,42 +120,76 @@ public class RegistrarDoctorPaso1Activity extends AppCompatActivity {
             }
         });
 
-        btnSiguiente.setOnClickListener(v -> {
-            String nombre = edNombre.getText().toString().trim();
-            String dni = edDNI.getText().toString().trim();
-            String fechaNacimiento = edFechaNacimiento.getText().toString().trim();
-            String telefono = edTelefono.getText().toString().trim();
-            String correo = edCorreo.getText().toString().trim();
-            String clave = edClave.getText().toString().trim();
-            String confirmarClave = edConfirmarClave.getText().toString().trim();
+        btnSiguiente.setOnClickListener(v -> validarYPasarAlSiguientePaso());
+    }
 
-            if (nombre.isEmpty() || fechaNacimiento.isEmpty() || telefono.isEmpty() || correo.isEmpty() || clave.isEmpty() || confirmarClave.isEmpty()) {
-                Toast.makeText(getApplicationContext(), "Por favor, llene todos los campos", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (!clave.equals(confirmarClave)) {
-                Toast.makeText(getApplicationContext(), "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (!Validaciones.esValido(clave)) {
-                Toast.makeText(this, "La contraseña no cumple los requisitos de seguridad.", Toast.LENGTH_LONG).show();
-                return;
-            }
-            if (!Validaciones.esFechaNacimientoValida(fechaNacimiento)) {
-                Toast.makeText(this, "La fecha de nacimiento no es válida. Debes ser mayor de 18 años.", Toast.LENGTH_LONG).show();
-                return;
-            }
+    private void validarYPasarAlSiguientePaso() {
+        String nombre = edNombre.getText().toString().trim();
+        String dni = edDNI.getText().toString().trim();
+        String fechaNacimiento = edFechaNacimiento.getText().toString().trim();
+        String telefono = edTelefono.getText().toString().trim();
+        String correo = edCorreo.getText().toString().trim();
+        String clave = edClave.getText().toString().trim();
+        String confirmarClave = edConfirmarClave.getText().toString().trim();
 
-            hayCambiosSinGuardar = false;
-            Intent intent = new Intent(RegistrarDoctorPaso1Activity.this, RegistrarDoctorPaso2Activity.class);
-            intent.putExtra("NOMBRE", nombre);
-            intent.putExtra("DNI", dni);
-            intent.putExtra("FECHA_NACIMIENTO", fechaNacimiento);
-            intent.putExtra("TELEFONO", telefono);
-            intent.putExtra("CORREO", correo);
-            intent.putExtra("CLAVE", clave);
-            startActivity(intent);
-        });
+        // 1. Validaciones Locales
+        if (nombre.isEmpty() || fechaNacimiento.isEmpty() || telefono.isEmpty() || correo.isEmpty() || clave.isEmpty() || confirmarClave.isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Por favor, llene todos los campos", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!clave.equals(confirmarClave)) {
+            Toast.makeText(getApplicationContext(), "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // ✨ USAMOS TU CLASE VALIDACIONES ✨
+        if (!Validaciones.esValido(clave)) {
+            Toast.makeText(this, "La contraseña no cumple los requisitos de seguridad.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (!Validaciones.esFechaNacimientoValida(fechaNacimiento)) {
+            Toast.makeText(this, "La fecha de nacimiento no es válida. Debes ser mayor de 18 años.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // ✨ 2. Verificar duplicados en Firestore (DNI) ✨
+        db.collection("doctores")
+                .whereEqualTo("dni", dni)
+                .get()
+                .addOnSuccessListener(snapshotDni -> {
+                    if (!snapshotDni.isEmpty()) {
+                        Toast.makeText(this, "Este DNI ya está registrado como doctor.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    // Si el DNI está libre, chequeamos el correo
+                    checkCorreoYAvanzar(nombre, dni, fechaNacimiento, telefono, correo, clave);
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Error al verificar DNI: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    private void checkCorreoYAvanzar(String nombre, String dni, String fecha, String tel, String correo, String clave) {
+        // ✨ 3. Verificar duplicados en Firestore (Correo) ✨
+        db.collection("doctores")
+                .whereEqualTo("correo", correo)
+                .get()
+                .addOnSuccessListener(snapshotCorreo -> {
+                    if (!snapshotCorreo.isEmpty()) {
+                        Toast.makeText(this, "Este correo ya está registrado.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // ✨ 4. Si todo está libre, pasamos al Paso 2 ✨
+                    hayCambiosSinGuardar = false;
+                    Intent intent = new Intent(RegistrarDoctorPaso1Activity.this, RegistrarDoctorPaso2Activity.class);
+                    intent.putExtra("NOMBRE", nombre);
+                    intent.putExtra("DNI", dni);
+                    intent.putExtra("FECHA_NACIMIENTO", fecha);
+                    intent.putExtra("TELEFONO", tel);
+                    intent.putExtra("CORREO", correo);
+                    intent.putExtra("CLAVE", clave);
+                    startActivity(intent);
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Error al verificar correo: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     private void verificarDNIconAPI(String dni) {
@@ -156,36 +197,28 @@ public class RegistrarDoctorPaso1Activity extends AppCompatActivity {
         btnVerificarDNI.setEnabled(false);
 
         String url = "https://api.decolecta.com/v1/reniec/dni?numero=" + dni;
-
-
+        // ✨ Asegúrate de que este sea tu token válido ✨
         final String token = "Bearer sk_11710.H4Eh0Rb9Z4GxyXToTjrPAWTuQO3ppNSc";
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 response -> {
                     try {
-                        String nombres = response.getString("first_name");
-                        String apellidoPaterno = response.getString("first_last_name");
-                        String apellidoMaterno = response.getString("second_last_name");
-
+                        String nombres = response.optString("first_name");
+                        String apellidoPaterno = response.optString("first_last_name");
+                        String apellidoMaterno = response.optString("second_last_name");
 
                         String nombreCompleto = nombres + " " + apellidoPaterno + " " + apellidoMaterno;
                         edNombre.setText(Validaciones.capitalizarPalabras(nombreCompleto));
 
                         habilitarFormularioPostVerificacion();
-                        Toast.makeText(this, "DNI verificado. Complete el resto de datos.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "DNI verificado.", Toast.LENGTH_LONG).show();
 
-                    } catch (JSONException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
-                        Toast.makeText(this, "Error al procesar la respuesta. Ingrese sus datos manualmente.", Toast.LENGTH_LONG).show();
-                        layoutNombre.setEnabled(true);
-                        habilitarFormularioPostVerificacion();
+                        manejarErrorAPI("Error al procesar la respuesta.");
                     }
                 },
-                error -> {
-                    Toast.makeText(this, "DNI no encontrado. Ingrese sus datos manualmente.", Toast.LENGTH_LONG).show();
-                    layoutNombre.setEnabled(true);
-                    habilitarFormularioPostVerificacion();
-                }
+                error -> manejarErrorAPI("DNI no encontrado. Ingrese sus datos manualmente.")
         ) {
             @Override
             public java.util.Map<String, String> getHeaders() {
@@ -196,6 +229,13 @@ public class RegistrarDoctorPaso1Activity extends AppCompatActivity {
             }
         };
         colaPeticiones.add(request);
+    }
+
+    private void manejarErrorAPI(String mensaje) {
+        Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show();
+        btnVerificarDNI.setEnabled(true);
+        layoutNombre.setEnabled(true); // Habilitamos para escribir manual
+        habilitarFormularioPostVerificacion();
     }
 
     private void mostrarCalendario() {
@@ -218,12 +258,6 @@ public class RegistrarDoctorPaso1Activity extends AppCompatActivity {
             @Override public void afterTextChanged(Editable s) {}
         };
         edDNI.addTextChangedListener(textWatcher);
-        edNombre.addTextChangedListener(textWatcher);
-        edFechaNacimiento.addTextChangedListener(textWatcher);
-        edTelefono.addTextChangedListener(textWatcher);
-        edCorreo.addTextChangedListener(textWatcher);
-        edClave.addTextChangedListener(textWatcher);
-        edConfirmarClave.addTextChangedListener(textWatcher);
     }
 
     private void setupBackButton() {
@@ -234,7 +268,7 @@ public class RegistrarDoctorPaso1Activity extends AppCompatActivity {
                 if (hayCambiosSinGuardar) {
                     new AlertDialog.Builder(RegistrarDoctorPaso1Activity.this)
                             .setTitle("Descartar Cambios")
-                            .setMessage("¿Estás seguro de que quieres salir? Los datos ingresados se perderán.")
+                            .setMessage("¿Estás seguro de que quieres salir?")
                             .setPositiveButton("Salir", (dialog, which) -> finish())
                             .setNegativeButton("Cancelar", null)
                             .show();

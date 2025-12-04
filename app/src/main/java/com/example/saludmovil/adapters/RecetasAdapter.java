@@ -9,11 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.saludmovil.R;
 import com.example.saludmovil.data.Receta;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 
 public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.ViewHolder> {
 
@@ -21,8 +17,9 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.ViewHold
     private ArrayList<Receta> listaRecetas;
     private OnRecetaClickListener listener;
 
+    // ✨ Interfaz ahora recibe String ID
     public interface OnRecetaClickListener {
-        void onRecetaClick(int idReceta);
+        void onRecetaClick(String idReceta);
     }
 
     public RecetasAdapter(Context context, ArrayList<Receta> listaRecetas, OnRecetaClickListener listener) {
@@ -42,12 +39,11 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.ViewHold
         }
 
         void bind(Receta receta) {
-            String fechaBonita = formatearFecha(receta.getFechaEmision());
-            tvFecha.setText(fechaBonita);
-
+            tvFecha.setText(receta.getFechaEmision());
             tvDoctor.setText("Dr. " + receta.getNombreDoctor());
             tvEspecialidad.setText(receta.getEspecialidad());
 
+            // ✨ Pasamos el ID String
             itemView.setOnClickListener(v -> listener.onRecetaClick(receta.getId()));
         }
     }
@@ -66,20 +62,9 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.ViewHold
 
     @Override
     public int getItemCount() { return listaRecetas.size(); }
+
     public void actualizarLista(ArrayList<Receta> nuevaLista) {
         this.listaRecetas = nuevaLista;
         notifyDataSetChanged();
-    }
-    private String formatearFecha(String fechaDB) {
-        try {
-            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            Date date = inputFormat.parse(fechaDB);
-            SimpleDateFormat outputFormat = new SimpleDateFormat("EEE, d MMM yyyy", new Locale("es", "ES"));
-            String fechaFormateada = outputFormat.format(date);
-            return fechaFormateada.substring(0, 1).toUpperCase() + fechaFormateada.substring(1);
-
-        } catch (Exception e) {
-            return fechaDB;
-        }
     }
 }

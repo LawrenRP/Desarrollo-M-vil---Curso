@@ -7,7 +7,6 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -22,11 +21,12 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.saludmovil.database.BaseDeDatos;
 import com.example.saludmovil.R;
 import com.example.saludmovil.ui.global.RolesActivity;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -42,25 +42,22 @@ public class InicioActivity extends AppCompatActivity {
     private MaterialCardView cardProximaCita;
     private TextView tvCitaPendienteInfo;
     private TextView tvCitaPendienteDoctor;
-    private int idUsuario;
+    private String idUsuario;
     private String rolUsuario;
-
+    private FirebaseFirestore db;
 
     private static final String CHANNEL_ID = "citas_channel";
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    revisarYEnviarNotificacion();
-                } else {
-                    Toast.makeText(this, "No se mostrarán notificaciones de citas.", Toast.LENGTH_SHORT).show();
-                }
+                revisarYEnviarNotificacion();
             });
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inicio);
+
+        db = FirebaseFirestore.getInstance();
 
         saludoUsuario = findViewById(R.id.saludoUsuario);
         btnPerfil = findViewById(R.id.buttonMiPerfil);
@@ -76,12 +73,11 @@ public class InicioActivity extends AppCompatActivity {
         tvCitaPendienteInfo = findViewById(R.id.tvCitaPendienteInfo);
         tvCitaPendienteDoctor = findViewById(R.id.tvCitaPendienteDoctor);
 
-
         SharedPreferences sp = getSharedPreferences("datos_usuario", MODE_PRIVATE);
-        idUsuario = sp.getInt("id_usuario", -1);
+        idUsuario = sp.getString("id_usuario", "");
         rolUsuario = sp.getString("rol_usuario", "");
 
-        if (idUsuario == -1 || rolUsuario.isEmpty()) {
+        if (idUsuario.isEmpty() || rolUsuario.isEmpty()) {
             Toast.makeText(this, "Error de sesión, por favor inicie de nuevo", Toast.LENGTH_SHORT).show();
             irALogin();
             return;
@@ -90,15 +86,29 @@ public class InicioActivity extends AppCompatActivity {
         mostrarSaludoPersonalizado();
 
         if (rolUsuario.equals("paciente")) {
-            BaseDeDatos bd = new BaseDeDatos(getApplicationContext());
-            if (!bd.isPerfilCompletoPorId(idUsuario)) {
-                mostrarDialogoCompletarPerfil();
-            }
+            verificarPerfilCompleto();
         }
 
         configurarListeners();
         crearCanalDeNotificacion();
         solicitarPermisoYEnviarNotificacion();
+    }
+
+    private void verificarPerfilCompleto() {
+        db.collection("pacientes")
+                .document(idUsuario)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String alergias = documentSnapshot.getString("alergias");
+                        String estatura = documentSnapshot.getString("estatura");
+
+                        if (alergias == null || alergias.isEmpty() || estatura == null || estatura.isEmpty()) {
+                            mostrarDialogoCompletarPerfil();
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Error al verificar perfil", Toast.LENGTH_SHORT).show());
     }
 
     private void solicitarPermisoYEnviarNotificacion() {
@@ -126,65 +136,90 @@ public class InicioActivity extends AppCompatActivity {
             notificationManager.createNotificationChannel(channel);
         }
     }
+
     private void revisarYEnviarNotificacion() {
-        BaseDeDatos bd = new BaseDeDatos(this);
-        Cursor cursor = bd.getProximaCita(idUsuario);
+        String fechaHoy = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
-        if (cursor != null && cursor.moveToFirst()) {
-            int fechaIndex = cursor.getColumnIndex("fecha");
-            int horaIndex = cursor.getColumnIndex("hora");
-            int doctorIndex = cursor.getColumnIndex("nombre_completo");
+        // 1. Traemos TODAS las citas "agendadas" de hoy en adelante
+        db.collection("citas")
+                .whereEqualTo("id_paciente", idUsuario)
+                .whereEqualTo("estado", "agendada")
+                .whereGreaterThanOrEqualTo("fecha", fechaHoy)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
 
-            String fechaCitaDB = cursor.getString(fechaIndex);
-            String horaCita = cursor.getString(horaIndex);
-            String doctorCita = cursor.getString(doctorIndex);
+                        // 2. Convertimos a una lista para poder ordenarla
+                        java.util.List<com.google.firebase.firestore.DocumentSnapshot> listaDocs = queryDocumentSnapshots.getDocuments();
 
-            cursor.close();
-            bd.close();
-            String fechaFormateada = formatearFecha(fechaCitaDB);
+                        // 3. Ordenamos manualmente por Fecha + Hora
+                        java.util.Collections.sort(listaDocs, (d1, d2) -> {
+                            try {
+                                String f1 = d1.getString("fecha");
+                                String h1 = d1.getString("hora");
+                                String f2 = d2.getString("fecha");
+                                String h2 = d2.getString("hora");
 
-            tvCitaPendienteInfo.setText(fechaFormateada + " - " + horaCita);
-            tvCitaPendienteDoctor.setText("Con: " + doctorCita);
-            cardProximaCita.post(new Runnable() {
-                @Override
-                public void run() {
-                    cardProximaCita.setVisibility(View.VISIBLE);
-                }
-            });
+                                // Usamos Locale.US para que entienda el "AM" y "PM" correctamente
+                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.US);
+                                Date date1 = sdf.parse(f1 + " " + h1);
+                                Date date2 = sdf.parse(f2 + " " + h2);
 
-            String tituloNotif = "Recordatorio de Cita";
-            String textoNotif = "Tu próxima cita es con " + doctorCita + " el " + fechaCitaDB + " a las " + horaCita;
+                                return date1.compareTo(date2);
+                            } catch (Exception e) {
+                                return 0;
+                            }
+                        });
 
-            Intent intent = new Intent(this, InicioActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+                        // 4. ¡Ahora sí! La primera de la lista es la verdadera próxima cita
+                        QueryDocumentSnapshot document = (QueryDocumentSnapshot) listaDocs.get(0);
 
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setSmallIcon(R.drawable.health_cross_24px)
-                    .setContentTitle(tituloNotif)
-                    .setContentText(textoNotif)
-                    .setStyle(new NotificationCompat.BigTextStyle().bigText(textoNotif))
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setContentIntent(pendingIntent)
-                    .setAutoCancel(true);
+                        String fecha = document.getString("fecha");
+                        String hora = document.getString("hora");
+                        String nombreDoctor = document.getString("nombre_doctor_temp");
+                        if (nombreDoctor == null) nombreDoctor = "Doctor";
 
-            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-            try {
-                notificationManager.notify(1, builder.build());
-            } catch (SecurityException e) {
-                e.printStackTrace();
-            }
-        } else {
-            cardProximaCita.post(new Runnable() {
-                @Override
-                public void run() {
+                        String fechaFormateada = formatearFecha(fecha);
+                        tvCitaPendienteInfo.setText(fechaFormateada + " - " + hora);
+                        tvCitaPendienteDoctor.setText("Con: " + nombreDoctor);
+
+                        cardProximaCita.setVisibility(View.VISIBLE);
+                        enviarNotificacionPush(nombreDoctor, fechaFormateada, hora);
+                    } else {
+                        cardProximaCita.setVisibility(View.GONE);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error al cargar citas: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     cardProximaCita.setVisibility(View.GONE);
-                }
-            });
-            if(cursor != null) cursor.close();
-            bd.close();
+                });
+    }
+
+    private void enviarNotificacionPush(String doctor, String fecha, String hora) {
+        String tituloNotif = "Recordatorio de Cita";
+        String textoNotif = "Tu próxima cita es con " + doctor + " el " + fecha + " a las " + hora;
+
+        Intent intent = new Intent(this, InicioActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.health_cross_24px)
+                .setContentTitle(tituloNotif)
+                .setContentText(textoNotif)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(textoNotif))
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        try {
+            notificationManager.notify(1, builder.build());
+        } catch (SecurityException e) {
+            e.printStackTrace();
         }
     }
+
     private String formatearFecha(String fechaDB) {
         try {
             SimpleDateFormat formatoEntrada = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -196,6 +231,7 @@ public class InicioActivity extends AppCompatActivity {
             return fechaDB;
         }
     }
+
     private void configurarListeners() {
         btnPerfil.setOnClickListener(v -> {
             Intent intent = new Intent(InicioActivity.this, PerfilPacienteActivity.class);
@@ -235,20 +271,26 @@ public class InicioActivity extends AppCompatActivity {
     }
 
     private void mostrarSaludoPersonalizado() {
-        BaseDeDatos bd = new BaseDeDatos(getApplicationContext());
-        String nombreUsuario = "Usuario";
-        if (rolUsuario.equals("paciente")) {
-            nombreUsuario = bd.getNombrePaciente(idUsuario);
-        } else if (rolUsuario.equals("doctor")) {
-            nombreUsuario = bd.getNombreDoctor(idUsuario);
-        }
-        saludoUsuario.setText("¡Hola, " + nombreUsuario + "!");
+        db.collection("pacientes")
+                .document(idUsuario)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String nombre = documentSnapshot.getString("nombre");
+                        saludoUsuario.setText("¡Hola, " + (nombre != null ? nombre : "Usuario") + "!");
+                    } else {
+                        saludoUsuario.setText("¡Hola, Usuario!");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    saludoUsuario.setText("¡Hola, Usuario!");
+                });
     }
 
     private void irALogin() {
         SharedPreferences sp = getSharedPreferences("datos_usuario", MODE_PRIVATE);
         sp.edit().clear().apply();
-        Intent intent = new Intent(InicioActivity.this, RolesActivity.class);
+        Intent intent = new Intent(this, RolesActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();

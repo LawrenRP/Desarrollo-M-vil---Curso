@@ -11,16 +11,16 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.saludmovil.R;
-import com.example.saludmovil.data.CitaParaPaciente;
+import com.example.saludmovil.data.Cita;
 import com.google.android.material.chip.Chip;
 
-public class CitasPacienteAdapter extends ListAdapter<CitaParaPaciente, CitasPacienteAdapter.CitaPacienteViewHolder> {
+public class CitasPacienteAdapter extends ListAdapter<Cita, CitasPacienteAdapter.CitaPacienteViewHolder> {
 
     private Context context;
     private OnCitaClickListener listener;
 
     public interface OnCitaClickListener {
-        void onCitaClick(CitaParaPaciente cita);
+        void onCitaClick(Cita cita);
     }
 
     public CitasPacienteAdapter(Context context, OnCitaClickListener listener) {
@@ -41,8 +41,9 @@ public class CitasPacienteAdapter extends ListAdapter<CitaParaPaciente, CitasPac
             chipEstado = itemView.findViewById(R.id.chipEstadoCita);
         }
 
-        void bind(CitaParaPaciente cita) {
-            tvNombreDoctor.setText(cita.getNombreDoctor());
+        void bind(Cita cita) {
+            // ✨ Usamos getNombreDoctor()
+            tvNombreDoctor.setText("Dr. " + cita.getNombreDoctor());
             tvFechaHora.setText(cita.getFecha() + " - " + cita.getHora());
             tvMotivo.setText(cita.getMotivo());
             chipEstado.setText(cita.getEstado());
@@ -71,19 +72,21 @@ public class CitasPacienteAdapter extends ListAdapter<CitaParaPaciente, CitasPac
 
     @Override
     public void onBindViewHolder(@NonNull CitaPacienteViewHolder holder, int position) {
-        CitaParaPaciente cita = getItem(position);
-        holder.bind(cita);
+        holder.bind(getItem(position));
     }
-    private static final DiffUtil.ItemCallback<CitaParaPaciente> CITA_COMPARATOR = new DiffUtil.ItemCallback<CitaParaPaciente>() {
+    private static final DiffUtil.ItemCallback<Cita> CITA_COMPARATOR = new DiffUtil.ItemCallback<Cita>() {
         @Override
-        public boolean areItemsTheSame(@NonNull CitaParaPaciente oldItem, @NonNull CitaParaPaciente newItem) {
+        public boolean areItemsTheSame(@NonNull Cita oldItem, @NonNull Cita newItem) {
+            // Comparamos por ID de Firestore si existe, o ID local
+            if (oldItem.getIdFirestore() != null && newItem.getIdFirestore() != null) {
+                return oldItem.getIdFirestore().equals(newItem.getIdFirestore());
+            }
             return oldItem.getIdCita() == newItem.getIdCita();
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull CitaParaPaciente oldItem, @NonNull CitaParaPaciente newItem) {
-            return oldItem.getIdCita() == newItem.getIdCita() &&
-                    oldItem.getEstado().equals(newItem.getEstado());
+        public boolean areContentsTheSame(@NonNull Cita oldItem, @NonNull Cita newItem) {
+            return oldItem.getEstado().equals(newItem.getEstado());
         }
     };
 }
